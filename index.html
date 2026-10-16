@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mapa Macro Internacional</title>
+<style>
+:root{
+  --bg:#f5f4ef;--card:#ffffff;--ink:#1d2229;--muted:#69707a;--line:#e3e1d9;
+  --accent:#1f5f99;--accent-soft:#e3eef8;--ok:#2e7d4f;--ok-soft:#e2f2e8;
+  --warn:#a8660d;--warn-soft:#fbf0dc;--bad:#b83227;--bad-soft:#fbe5e2;--extra:#6b4fa0;--extra-soft:#efe9f8;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15181c;--card:#1e2228;--ink:#e8e9eb;--muted:#9aa1ab;--line:#30353d;
+    --accent:#6ea8dc;--accent-soft:#1c2f42;--ok:#5cbf85;--ok-soft:#1c3327;
+    --warn:#e0a548;--warn-soft:#3a2d17;--bad:#ef7a6e;--bad-soft:#3d1f1c;--extra:#b39ae0;--extra-soft:#2c2540;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15181c;--card:#1e2228;--ink:#e8e9eb;--muted:#9aa1ab;--line:#30353d;
+  --accent:#6ea8dc;--accent-soft:#1c2f42;--ok:#5cbf85;--ok-soft:#1c3327;
+  --warn:#e0a548;--warn-soft:#3a2d17;--bad:#ef7a6e;--bad-soft:#3d1f1c;--extra:#b39ae0;--extra-soft:#2c2540;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:16px 16px 80px}
+h1{font-size:22px;margin:4px 0 2px}
+h2{font-size:17px;margin:0 0 10px}
+h3{font-size:15px;margin:14px 0 6px}
+.sub{color:var(--muted);font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0}
+.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);border-radius:6px;transition:width .3s}
+.bar.ok>i{background:var(--ok)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.grow{flex:1}
+.big{font-size:28px;font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.stat{background:var(--bg);border-radius:8px;padding:8px;text-align:center}
+.stat b{display:block;font-size:18px}
+.stat span{font-size:12px;color:var(--muted)}
+.alert{border-radius:10px;padding:10px 12px;margin:8px 0;font-size:14px;border-left:4px solid}
+.alert.bad{background:var(--bad-soft);border-color:var(--bad)}
+.alert.warn{background:var(--warn-soft);border-color:var(--warn)}
+.alert.info{background:var(--accent-soft);border-color:var(--accent)}
+.alert.ok{background:var(--ok-soft);border-color:var(--ok)}
+nav.tabs{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;gap:6px;padding:8px 0;overflow-x:auto}
+nav.tabs button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 12px;border-radius:20px;font-size:14px;cursor:pointer}
+nav.tabs button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.task{display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--line);align-items:flex-start}
+.task:first-child{border-top:0}
+.task input{width:20px;height:20px;margin-top:2px;flex:0 0 auto;accent-color:var(--ok);cursor:pointer}
+.task .t{font-weight:600}
+.task.done .t{text-decoration:line-through;color:var(--muted)}
+.meta{font-size:12px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.note{font-size:13px;color:var(--muted);margin-top:3px}
+.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:10px;background:var(--bg);border:1px solid var(--line);color:var(--muted)}
+.tag.A{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.tag.B{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.tag.C{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.tag.late{background:var(--bad);color:#fff;border-color:transparent}
+.tag.today{background:var(--accent);color:#fff;border-color:transparent}
+.tag.grp{background:var(--extra-soft);color:var(--extra);border-color:transparent}
+/* mapa */
+.map{position:relative;padding-left:34px}
+.map:before{content:"";position:absolute;left:14px;top:10px;bottom:10px;width:3px;background:var(--line);border-radius:2px}
+.mod{position:relative;margin:0 0 14px}
+.node{position:absolute;left:-34px;top:14px;width:31px;height:31px;border-radius:50%;background:var(--card);border:3px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:var(--muted)}
+.mod.done .node{background:var(--ok);border-color:var(--ok);color:#fff}
+.mod.current .node{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 0 5px var(--accent-soft)}
+.mod .card{margin:0;cursor:default}
+.mod.current .card{border-color:var(--accent);border-width:2px}
+.mhead{display:flex;gap:10px;align-items:center;cursor:pointer}
+.mhead .ttl{font-weight:700}
+.chev{transition:transform .2s;color:var(--muted)}
+.mod.open .chev{transform:rotate(90deg)}
+.mbody{display:none;margin-top:10px}
+.mod.open .mbody{display:block}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 11px;border-radius:8px;font-size:13px;cursor:pointer}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.small{padding:3px 8px;font-size:12px}
+.extra{background:var(--extra-soft);border-radius:10px;padding:10px 12px;margin-top:12px}
+.extra h3{color:var(--extra);margin-top:0}
+.locked{opacity:.55}
+textarea,input[type=text],input[type=date],input[type=number],select{width:100%;padding:7px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;font-size:14px}
+textarea{min-height:70px}
+.guide{background:var(--bg);border-radius:8px;padding:8px 10px;font-size:13px;margin-top:8px}
+.day{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.day .d{width:92px;flex:0 0 auto;font-size:13px;color:var(--muted)}
+.day.istoday .d{color:var(--accent);font-weight:700}
+.day.class{background:var(--accent-soft);border-radius:8px;padding:8px}
+.week{font-weight:700;margin-top:14px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.ci{font-size:13px;padding:2px 0}
+.ci.done{text-decoration:line-through;color:var(--muted)}
+.hrs{font-size:12px;color:var(--muted);white-space:nowrap}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:560px){.stats{grid-template-columns:repeat(3,1fr)}.grid2{grid-template-columns:1fr}.day .d{width:74px}}
+.hidden{display:none}
+footer{color:var(--muted);font-size:12px;text-align:center;margin-top:30px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="row">
+    <div class="grow">
+      <h1>Mapa de estudio · Macroeconomía Internacional</h1>
+      <div class="sub">Magíster · 6 módulos · 18 sesiones · Sep–Nov 2026</div>
+    </div>
+    <button class="btn" id="themeBtn" title="Cambiar tema">◐</button>
+  </div>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="hoy" class="on">Hoy</button>
+    <button data-tab="mapa">Mapa</button>
+    <button data-tab="cal">Calendario</button>
+    <button data-tab="mas">Ir más allá</button>
+    <button data-tab="ajustes">Ajustes</button>
+  </nav>
+
+  <section id="tab-hoy"></section>
+  <section id="tab-mapa" class="hidden"></section>
+  <section id="tab-cal" class="hidden"></section>
+  <section id="tab-mas" class="hidden"></section>
+  <section id="tab-ajustes" class="hidden"></section>
+
+  <footer>El progreso se guarda en este navegador. Usa Ajustes → Exportar para respaldarlo o pasarlo a otro dispositivo.</footer>
+</div>
+
+<script>
+/* ============ DATOS DEL CURSO ============ */
+const BOOKS = {
+  SGUW:"Schmitt-Grohé, Uribe & Woodford (2022). International Macroeconomics. Princeton UP",
+  SGU:"Uribe & Schmitt-Grohé (2017). Open Economy Macroeconomics. Princeton UP",
+  ROM:"Romer (2019). Advanced Macroeconomics, 5ª ed. McGraw-Hill (autor: David Romer)",
+  DeG:"De Gregorio (2007). Macroeconomía: Teoría y Políticas. Pearson"
+};
+const PRIO = {A:"A · primero",B:"B · después",C:"C · al final"};
+const TYPE = {lectura:"📖 Lectura",caso:"📁 Caso HBS",quiz:"✏️ Prep. quiz",clase:"🎓 Clase",post:"🔁 Repaso",grupo:"👥 Presentación",custom:"📌 Propia"};
+
+const MODS = [
+ {id:1,title:"Crecimiento Económico",date:"2026-09-26",when:"Sábado 9:00–14:00",room:"P-304",group:0,
+  sessions:[[1,"9:00–10:30","Quiz y Hechos Estilizados","DeG 11"],[2,"10:30–12:30","Modelo de Solow y Crecimiento Endógeno","ROM 1, 3 · DeG 12"],[3,"12:30–14:00","Caso Singapur (presenta: Profesor)","HBS 723-023"]],
+  tasks:[
+   ["m1-deg11","lectura","DeG cap. 11 — Hechos estilizados del crecimiento","DeG 11",2,"2026-09-20","A"],
+   ["m1-rom1","lectura","Romer cap. 1 — Modelo de Solow","ROM 1",3,"2026-09-21","A"],
+   ["m1-rom3","lectura","Romer cap. 3 — Crecimiento endógeno","ROM 3",3,"2026-09-23","A"],
+   ["m1-deg12","lectura","DeG cap. 12 — Apoyo crecimiento","DeG 12",2,"2026-09-24","B"],
+   ["m1-case","caso","Caso Singapur: ‘From Third World to First’","HBS 723-023",2,"2026-09-25","A","Preguntas guía: ¿el crecimiento vino de acumulación de factores o de productividad (PTF)? ¿Qué papel jugaron el ahorro obligatorio, la inversión extranjera y la apertura? ¿Qué dice Solow sobre su convergencia?"],
+   ["m1-quiz","quiz","Repaso para el quiz de lectura (15 min)","—",1,"2026-09-25","A"],
+   ["m1-s1","clase","Sesión 1 · Quiz y Hechos Estilizados","",1.5,"2026-09-26"],
+   ["m1-s2","clase","Sesión 2 · Solow y Crecimiento Endógeno","",2,"2026-09-26"],
+   ["m1-s3","clase","Sesión 3 · Caso Singapur","",1.5,"2026-09-26"],
+   ["m1-post","post","Repaso post-clase: resumen de 1 página + dudas","—",1.5,"2026-09-27","B"]
+  ],
+  beyond:[
+   ["Ejercicios del final de Romer cap. 1 y 3","Fijan la mecánica de Solow y de los modelos AK / Romer."],
+   ["Mankiw, Romer & Weil (1992), QJE — ‘A Contribution to the Empirics of Economic Growth’","El Solow aumentado con capital humano; muy citado en exámenes."],
+   ["Young (1995), QJE — ‘The Tyranny of Numbers’","Contabilidad del crecimiento en Asia del Este; conecta directo con Singapur."],
+   ["Krugman (1994), Foreign Affairs — ‘The Myth of Asia's Miracle’","Lectura corta y provocadora sobre acumulación vs. productividad."],
+   ["Práctica con datos: Penn World Table","Replica los hechos de Kaldor para Chile y Singapur (PIB per cápita, K/Y, participación del trabajo)."]
+  ]},
+ {id:2,title:"Introducción a las Economías Pequeñas y Abiertas",date:"2026-10-02",when:"Viernes 17:00–22:00",room:"P-304",group:1,
+  sessions:[[4,"17:00–18:30","Quiz y Hechos Estilizados","SGU 1"],[5,"18:30–20:30","Desbalances Globales y Balanza de Pagos","SGUW 1"],[6,"20:30–22:00","Caso Tailandia (presenta: Grupo 1)","HBS HKU804"]],
+  tasks:[
+   ["m2-sgu1","lectura","SGU cap. 1 — Hechos estilizados de economías abiertas","SGU 1",3,"2026-09-28","A"],
+   ["m2-sguw1","lectura","SGUW cap. 1 — Desbalances globales y balanza de pagos","SGUW 1",2.5,"2026-09-29","A"],
+   ["m2-case","caso","Caso Tailandia: ‘An Imbalance of Payments’","HBS HKU804",2,"2026-09-30","A","Preguntas guía: ¿cómo se financiaba el déficit de cuenta corriente (flujos de corto plazo, deuda en dólares)? ¿Por qué el tipo de cambio fijo hizo frágil la posición? Usa la identidad CC = S − I."],
+   ["m2-quiz","quiz","Repaso para el quiz de lectura","—",1,"2026-10-01","A"],
+   ["m2-s4","clase","Sesión 4 · Quiz y Hechos Estilizados","",1.5,"2026-10-02"],
+   ["m2-s5","clase","Sesión 5 · Desbalances Globales y BdP","",2,"2026-10-02"],
+   ["m2-s6","clase","Sesión 6 · Caso Tailandia","",1.5,"2026-10-02"],
+   ["m2-post","post","Repaso post-clase: resumen + identidades contables de la BdP","—",1.5,"2026-10-03","B"]
+  ],
+  beyond:[
+   ["Obstfeld & Rogoff (1996), Foundations of International Macroeconomics, cap. 1","La referencia de posgrado para el enfoque intertemporal."],
+   ["Bernanke (2005) — discurso ‘The Global Saving Glut and the U.S. Current Account Deficit’","Contexto para el caso EE.UU. del módulo 3."],
+   ["Radelet & Sachs (1998), Brookings Papers — ‘The East Asian Financial Crisis’","Profundiza el caso Tailandia."],
+   ["FMI — Manual de Balanza de Pagos (MBP6)","Para dominar la contabilidad de la BdP."],
+   ["Práctica con datos: Banco Central de Chile, Balanza de Pagos","Grafica cuenta corriente / PIB de Chile desde 2000."]
+  ]},
+ {id:3,title:"La Cuenta Corriente",date:"2026-10-17",when:"Sábado 9:00–14:00",room:"P-304",group:2,
+  sessions:[[7,"9:00–10:30","Quiz y Determinantes de la Cuenta Corriente","SGUW 2, 3"],[8,"10:30–12:30","Los Términos de Intercambio","SGUW 4 · SGU 7 · DeG 6"],[9,"12:30–14:00","Caso Estados Unidos (presenta: Grupo 2)","HBS 706-002"]],
+  warn:"El programa dice “[SGUW] 7” para términos de intercambio, pero la planificación de clases dice “[SGU] 7”. Lee SGU 7 (planificación, más reciente) y confirma con el profesor.",
+  tasks:[
+   ["m3-sguw2","lectura","SGUW cap. 2 — Determinantes de la cuenta corriente","SGUW 2",2.5,"2026-10-15","A"],
+   ["m3-sguw3","lectura","SGUW cap. 3 — Determinantes de la cuenta corriente","SGUW 3",3,"2026-10-16","A"],
+   ["m3-sguw4","lectura","SGUW cap. 4 — Términos de intercambio","SGUW 4",2.5,"2026-10-16","A"],
+   ["m3-case","caso","Caso EE.UU.: ‘The U.S. Current Account Deficit’","HBS 706-002",2,"2026-10-16","A","Preguntas guía: ¿el déficit refleja bajo ahorro de EE.UU. o exceso de ahorro del resto del mundo? ¿Es sostenible según la restricción intertemporal? Lleva 1–2 preguntas para la discusión."],
+   ["m3-deg6","lectura","DeG cap. 6 — Apoyo términos de intercambio","DeG 6",1,"2026-10-16","B"],
+   ["m3-sgu7","lectura","SGU cap. 7 — Términos de intercambio (lectura rápida si falta tiempo)","SGU 7",2,"2026-10-16","C","Ver la nota sobre SGU 7 / SGUW 7."],
+   ["m3-quiz","quiz","Repaso para el quiz: 5 ideas clave por capítulo","—",0.5,"2026-10-16","A"],
+   ["m3-s7","clase","Sesión 7 · Quiz y Determinantes de la CC","",1.5,"2026-10-17"],
+   ["m3-s8","clase","Sesión 8 · Términos de Intercambio","",2,"2026-10-17"],
+   ["m3-s9","clase","Sesión 9 · Caso Estados Unidos","",1.5,"2026-10-17"],
+   ["m3-post","post","Repaso post-clase + completar lo que quedó a medias","—",1.5,"2026-10-18","A"]
+  ],
+  beyond:[
+   ["Ejercicios del final de SGUW caps. 2–4","La mejor preparación para las pruebas: aplicar el modelo de 2 períodos."],
+   ["Obstfeld & Rogoff (1995) — ‘The Intertemporal Approach to the Current Account’, Handbook of International Economics vol. 3","Versión rigurosa de lo visto en clase."],
+   ["Obstfeld (2012), AER P&P — ‘Does the Current Account Still Matter?’","Debate moderno sobre la relevancia de la CC."],
+   ["Gourinchas & Rey (2007) — ‘From World Banker to World Venture Capitalist’","Efectos de valoración y el privilegio de EE.UU.: complemento al caso."],
+   ["Mendoza (1995), IER — ‘The Terms of Trade, the Real Exchange Rate, and Economic Fluctuations’","Shocks de términos de intercambio en economías pequeñas."],
+   ["Práctica con datos: precio del cobre vs. cuenta corriente de Chile","Aplica el efecto de los términos de intercambio a Chile."]
+  ]},
+ {id:4,title:"El Tipo de Cambio Real",date:"2026-10-23",when:"Viernes 17:00–22:00",room:"P-303",group:3,
+  sessions:[[10,"17:00–18:30","Quiz y Determinantes del Tipo de Cambio","SGUW 9, 10"],[11,"18:30–20:30","Modelo TNT","SGUW 8"],[12,"20:30–22:00","Caso Argentina 1946–2002 (presenta: Grupo 3)","HBS 715-019"]],
+  warn:"Cambio de sala: este módulo es en la P-303, no en la P-304.",
+  tasks:[
+   ["m4-sguw8","lectura","SGUW cap. 8 — Modelo TNT (léelo primero: es la base de los caps. 9–10)","SGUW 8",3,"2026-10-19","A"],
+   ["m4-sguw9","lectura","SGUW cap. 9 — Determinantes del tipo de cambio real","SGUW 9",3,"2026-10-20","A"],
+   ["m4-sguw10","lectura","SGUW cap. 10 — Determinantes del tipo de cambio real","SGUW 10",3,"2026-10-21","A"],
+   ["m4-case","caso","Caso Argentina I: ‘A Currency We Can Call Our Own’ (1946–2002)","HBS 715-019",2.5,"2026-10-22","A","Preguntas guía: ¿cómo interactúan populismo, déficit fiscal y tipo de cambio real? ¿Por qué colapsó la convertibilidad en 2001–02? Conéctalo con el modelo TNT: más gasto en no transables → apreciación real."],
+   ["m4-quiz","quiz","Repaso para el quiz (mañana del viernes)","—",1,"2026-10-23","A"],
+   ["m4-s10","clase","Sesión 10 · Quiz y Determinantes del TCR","",1.5,"2026-10-23"],
+   ["m4-s11","clase","Sesión 11 · Modelo TNT","",2,"2026-10-23"],
+   ["m4-s12","clase","Sesión 12 · Caso Argentina I","",1.5,"2026-10-23"],
+   ["m4-post","post","Repaso post-clase: dibuja el diagrama TNT de memoria","—",1.5,"2026-10-24","B"]
+  ],
+  beyond:[
+   ["Ejercicios del final de SGUW caps. 8–10","Practica estática comparativa en el modelo TNT."],
+   ["Rogoff (1996), JEL — ‘The Purchasing Power Parity Puzzle’","El clásico sobre la persistencia de las desviaciones de la PPC."],
+   ["Balassa (1964), JPE — ‘The Purchasing-Power Parity Doctrine: A Reappraisal’","Origen del efecto Balassa-Samuelson."],
+   ["Edwards (1989) — Real Exchange Rates, Devaluation, and Adjustment (MIT Press)","Tipo de cambio real en economías en desarrollo; muy útil para Latinoamérica."],
+   ["Práctica con datos: índice de tipo de cambio real del Banco Central de Chile","Compara con el índice Big Mac de The Economist."]
+  ]},
+ {id:5,title:"Política Monetaria y Tipo de Cambio",date:"2026-11-07",when:"Sábado 9:00–14:00",room:"P-304",group:4,
+  sessions:[[13,"9:00–10:30","Quiz y Modelo TNT-DNWR","SGUW 13, 14 · SGU 9"],[14,"10:30–12:30","Crisis de Balanza de Pagos","SGUW 15 · SGU 11"],[15,"12:30–14:00","Caso Argentina 1997–2015 (presenta: Grupo 4)","HBS 714-036"]],
+  tasks:[
+   ["m5-sguw13","lectura","SGUW cap. 13 — Modelo TNT-DNWR","SGUW 13",3,"2026-10-26","A"],
+   ["m5-sguw14","lectura","SGUW cap. 14 — Modelo TNT-DNWR","SGUW 14",3,"2026-10-28","A"],
+   ["m5-sgu9a","lectura","SGU cap. 9 (1ª mitad) — Rigidez de salarios nominales","SGU 9",2.5,"2026-10-30","A"],
+   ["m5-sgu9b","lectura","SGU cap. 9 (2ª mitad) + rehacer derivaciones","SGU 9",2.5,"2026-10-31","A"],
+   ["m5-sguw15","lectura","SGUW cap. 15 — Crisis de balanza de pagos","SGUW 15",3,"2026-11-02","A"],
+   ["m5-sgu11","lectura","SGU cap. 11 — Crisis de balanza de pagos","SGU 11",3.5,"2026-11-04","A"],
+   ["m5-case","caso","Caso Argentina II: ‘Breaking Bad (the Rules)’ (1997–2015)","HBS 714-036",2.5,"2026-11-05","A","Preguntas guía: default de 2001, reestructuración y holdouts; inflación y crecimiento con el boom de commodities. ¿Qué predice el modelo TNT-DNWR sobre tipo de cambio fijo vs. devaluación y desempleo?"],
+   ["m5-quiz","quiz","Repaso para el quiz","—",1.5,"2026-11-06","A"],
+   ["m5-s13","clase","Sesión 13 · Quiz y TNT-DNWR","",1.5,"2026-11-07"],
+   ["m5-s14","clase","Sesión 14 · Crisis de BdP","",2,"2026-11-07"],
+   ["m5-s15","clase","Sesión 15 · Caso Argentina II","",1.5,"2026-11-07"],
+   ["m5-post","post","Repaso post-clase","—",1.5,"2026-11-08","B"]
+  ],
+  beyond:[
+   ["Schmitt-Grohé & Uribe (2016), JPE — ‘Downward Nominal Wage Rigidity, Currency Pegs, and Involuntary Unemployment’","El paper detrás del modelo TNT-DNWR."],
+   ["Krugman (1979), JMCB — ‘A Model of Balance-of-Payments Crises’","Modelo de crisis de primera generación."],
+   ["Obstfeld (1996), EER — ‘Models of Currency Crises with Self-Fulfilling Features’","Modelo de segunda generación."],
+   ["Kaminsky & Reinhart (1999), AER — ‘The Twin Crises’","Evidencia sobre crisis bancarias y cambiarias."],
+   ["Calvo & Reinhart (2002), QJE — ‘Fear of Floating’","Por qué los emergentes no dejan flotar su moneda."]
+  ]},
+ {id:6,title:"Crisis Financieras y Default Soberano",date:"2026-11-20",when:"Viernes 17:00–22:00",room:"P-304",group:5,
+  sessions:[[16,"17:00–18:30","Quiz y Fricciones Financieras y Sudden Stops","SGU 12"],[17,"18:30–20:30","Default Soberano","SGU 13"],[18,"20:30–22:00","Caso Hank y Nancy (presenta: Grupo 5)","HBS 718-022"]],
+  tasks:[
+   ["m6-sgu12a","lectura","SGU cap. 12 (1ª mitad) — Fricciones financieras y sudden stops","SGU 12",2.5,"2026-11-10","A"],
+   ["m6-sgu12b","lectura","SGU cap. 12 (2ª mitad)","SGU 12",2.5,"2026-11-12","A"],
+   ["m6-sgu13a","lectura","SGU cap. 13 (1ª mitad) — Default soberano","SGU 13",2.5,"2026-11-14","A"],
+   ["m6-sgu13b","lectura","SGU cap. 13 (2ª mitad)","SGU 13",2.5,"2026-11-16","A"],
+   ["m6-case","caso","Caso Hank y Nancy: crisis subprime, Lehman y el rescate","HBS 718-022",2.5,"2026-11-18","A","Preguntas guía: ¿por qué hubo una corrida sobre la banca en la sombra? ¿Por qué se dejó caer a Lehman y luego se rescató al sistema (TARP)? Conéctalo con fricciones financieras."],
+   ["m6-quiz","quiz","Repaso para el quiz","—",1.5,"2026-11-19","A"],
+   ["m6-s16","clase","Sesión 16 · Quiz, Fricciones y Sudden Stops","",1.5,"2026-11-20"],
+   ["m6-s17","clase","Sesión 17 · Default Soberano","",2,"2026-11-20"],
+   ["m6-s18","clase","Sesión 18 · Caso Hank y Nancy","",1.5,"2026-11-20"],
+   ["m6-post","post","Repaso integral del curso (para evaluaciones finales, si las hay)","—",2,"2026-11-22","B"]
+  ],
+  beyond:[
+   ["Calvo (1998), J. Applied Economics — ‘Capital Flows and Capital-Market Crises: The Simple Economics of Sudden Stops’","El origen del concepto de sudden stop."],
+   ["Mendoza (2010), AER — ‘Sudden Stops, Financial Crises, and Leverage’","Restricciones de colateral y crisis."],
+   ["Eaton & Gersovitz (1981), REStud — ‘Debt with Potential Repudiation’","El modelo base de default soberano."],
+   ["Arellano (2008), AER — ‘Default Risk and Income Fluctuations in Emerging Economies’","La versión cuantitativa moderna (y estudia el caso argentino)."],
+   ["Reinhart & Rogoff (2009) — This Time Is Different","Panorama histórico de crisis y defaults."],
+   ["Gorton & Metrick (2012), JFE — ‘Securitized Banking and the Run on Repo’","La corrida de 2008 sobre la banca en la sombra."]
+  ]}
+];
+
+/* ============ ESTADO ============ */
+const KEY = "mapa-macro-intl-2026-v1";
+let S = {done:{},extra:{},group:0,custom:[],notes:{},open:{},unlock:{},hideDone:false};
+try{const r=localStorage.getItem(KEY); if(r) S=Object.assign(S,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+/* ============ FECHAS ============ */
+function pad(n){return String(n).padStart(2,"0");}
+function ymd(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());}
+const qs = new URLSearchParams(location.search);
+const TODAY = qs.get("hoy") || ymd(new Date());
+function toDate(s){const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d);}
+function addDays(s,n){const d=toDate(s);d.setDate(d.getDate()+n);return ymd(d);}
+function diff(a,b){return Math.round((toDate(b)-toDate(a))/86400000);}
+function fmt(s,long){return toDate(s).toLocaleDateString("es-CL",long?{weekday:"long",day:"numeric",month:"long"}:{weekday:"short",day:"numeric",month:"short"});}
+function rel(s){const n=diff(TODAY,s);if(n===0)return"hoy";if(n===1)return"mañana";if(n===-1)return"ayer";return n>0?"en "+n+" días":"hace "+(-n)+" días";}
+
+/* ============ TAREAS ============ */
+function baseTasks(){
+  const out=[];
+  MODS.forEach(m=>m.tasks.forEach(t=>out.push({id:t[0],type:t[1],title:t[2],ref:t[3],h:t[4],plan:t[5],prio:t[6]||"",note:t[7]||"",mod:m.id})));
+  return out;
+}
+function groupTasks(){
+  if(!S.group)return[];
+  const m=MODS.find(x=>x.group===+S.group); if(!m)return[];
+  const g=[["leer",-12,"Lectura profunda del caso y datos clave",3],["reparto",-10,"Reunión de grupo: repartir secciones",1],["analisis",-7,"Conectar el caso con el modelo del módulo (gráficos, datos actualizados)",4],["slides",-4,"Armar slides para 45 minutos",4],["ensayo",-1,"Ensayo cronometrado + 3 preguntas para la discusión",1.5]];
+  return g.map(x=>({id:"g"+S.group+"-"+x[0],type:"grupo",title:"Tu presentación: "+x[2],ref:"Grupo "+S.group,h:x[3],plan:addDays(m.date,x[1]),prio:"A",note:"",mod:m.id}));
+}
+function customTasks(){return S.custom.map(c=>Object.assign({type:"custom",prio:"",note:"",ref:""},c));}
+function allTasks(){return baseTasks().concat(groupTasks(),customTasks());}
+function modTasks(id){return allTasks().filter(t=>t.mod===id);}
+function prog(list){const tot=list.reduce((a,t)=>a+t.h,0);const d=list.filter(t=>S.done[t.id]).reduce((a,t)=>a+t.h,0);return{tot,d,pct:tot?Math.round(100*d/tot):0,n:list.length,nd:list.filter(t=>S.done[t.id]).length};}
+function nextMod(){return MODS.find(m=>m.date>=TODAY);}
+function h(n){return (Math.round(n*10)/10).toString().replace(".",",")+" h";}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+function taskRow(t,opts={}){
+  const done=!!S.done[t.id];
+  const late=!done&&t.type!=="clase"&&t.plan<TODAY;
+  const tags=[];
+  if(late)tags.push('<span class="tag late">atrasada</span>');
+  else if(!done&&t.plan===TODAY)tags.push('<span class="tag today">hoy</span>');
+  if(t.prio)tags.push('<span class="tag '+t.prio+'">'+PRIO[t.prio]+'</span>');
+  if(t.type==="grupo")tags.push('<span class="tag grp">tu grupo</span>');
+  const meta=[TYPE[t.type]];
+  if(t.ref&&t.ref!=="—")meta.push(esc(t.ref));
+  meta.push(h(t.h));
+  meta.push((t.type==="clase"?"":"plan: ")+fmt(t.plan));
+  if(opts.mod)meta.push("Módulo "+t.mod);
+  return '<div class="task'+(done?" done":"")+'"><input type="checkbox" data-id="'+t.id+'"'+(done?" checked":"")+' aria-label="Completar">'+
+    '<div class="grow"><div class="t">'+esc(t.title)+'</div><div class="meta">'+meta.map(x=>"<span>"+x+"</span>").join("·")+" "+tags.join(" ")+'</div>'+
+    (t.note?'<div class="note">'+esc(t.note)+'</div>':"")+
+    (t.type==="custom"?' <button class="btn small" data-del="'+t.id+'">eliminar</button>':"")+'</div></div>';
+}
+
+/* ============ HOY ============ */
+function renderHoy(){
+  const all=allTasks(), study=all.filter(t=>t.type!=="clase");
+  const P=prog(all), nm=nextMod();
+  let html='<div class="card"><div class="row"><div class="grow"><div class="sub">Progreso total del curso</div><div class="big">'+P.pct+'%</div></div>'+
+    '<div class="sub" style="text-align:right">'+fmt(TODAY,true)+'</div></div>'+
+    '<div class="bar ok"><i style="width:'+P.pct+'%"></i></div>'+
+    '<div class="stats"><div class="stat"><b>'+P.nd+'/'+P.n+'</b><span>tareas</span></div><div class="stat"><b>'+h(P.d)+'</b><span>de '+h(P.tot)+'</span></div>'+
+    '<div class="stat"><b>'+MODS.filter(m=>prog(modTasks(m.id)).pct===100).length+'/6</b><span>módulos al 100%</span></div></div></div>';
+
+  // alertas
+  const alerts=[];
+  const late=study.filter(t=>!S.done[t.id]&&t.plan<TODAY);
+  if(late.length)alerts.push(["bad","Tienes <b>"+late.length+"</b> tarea(s) atrasada(s) ("+h(late.reduce((a,t)=>a+t.h,0))+"). Aparecen primero en la lista de abajo."]);
+  if(nm){
+    const dl=diff(TODAY,nm.date);
+    const rem=modTasks(nm.id).filter(t=>!S.done[t.id]&&t.type!=="clase"&&t.type!=="post");
+    const remH=rem.reduce((a,t)=>a+t.h,0);
+    const perDay=remH/Math.max(1,dl);
+    alerts.push([dl<=2?"warn":"info","Próxima clase: <b>Módulo "+nm.id+" · "+nm.title+"</b> — "+fmt(nm.date,true)+" ("+rel(nm.date)+"), "+nm.when+", sala <b>"+nm.room+"</b>. Te faltan "+h(remH)+" de preparación."]);
+    if(remH>0&&perDay>4)alerts.push(["bad","<b>Modo prioridad:</b> necesitarías ~"+h(perDay)+" por día para llegar. Haz primero las tareas <b>A</b> (sirven para el quiz y la clase), después B y C. Lo que no alcances queda como repaso post-clase. Igual es obligatorio terminarlo."]);
+    if(nm.warn)alerts.push(["warn",nm.warn]);
+    if(S.group&&nm.group===+S.group)alerts.push(["warn","<b>¡Este módulo presenta tu grupo!</b> 45 minutos de exposición + discusión."]);
+  } else alerts.push(["ok","Terminaron las clases del programa. Revisa si hay evaluaciones finales y agrégalas en Ajustes."]);
+  if(!S.group)alerts.push(["info","Indica tu número de grupo en <b>Ajustes</b> para que la guía programe la preparación de tu presentación."]);
+  html+=alerts.map(a=>'<div class="alert '+a[0]+'">'+a[1]+'</div>').join("");
+
+  // hoy
+  const classToday=MODS.find(m=>m.date===TODAY);
+  const ord={A:0,B:1,C:2,"":1};
+  const todo=study.filter(t=>!S.done[t.id]&&t.plan<=TODAY).sort((a,b)=>(a.plan<TODAY?0:1)-(b.plan<TODAY?0:1)||ord[a.prio]-ord[b.prio]||a.plan.localeCompare(b.plan));
+  html+='<div class="card"><h2>Qué estudiar hoy</h2>';
+  if(classToday)html+='<div class="alert info">🎓 Hoy hay clase: Módulo '+classToday.id+', '+classToday.when+', sala '+classToday.room+'. Marca cada sesión al terminarla (en el Mapa).</div>';
+  if(todo.length){html+='<div class="sub">Tiempo estimado: '+h(todo.reduce((a,t)=>a+t.h,0))+'</div>'+todo.map(t=>taskRow(t,{mod:1})).join("");}
+  else html+='<p>Estás al día. 🎉 Puedes adelantar lo próximo o, si el módulo está al 100%, ir a <b>Ir más allá</b>.</p>';
+  html+='</div>';
+
+  const up=study.filter(t=>!S.done[t.id]&&t.plan>TODAY).sort((a,b)=>a.plan.localeCompare(b.plan)).slice(0,4);
+  if(up.length)html+='<div class="card"><h2>Lo que viene</h2>'+up.map(t=>taskRow(t,{mod:1})).join("")+'</div>';
+
+  html+='<div class="card"><h2>Cómo estudiar cada tipo de tarea</h2>'+
+   '<div class="guide"><b>📖 Lectura (capítulo):</b> 1) 10 min hojeando títulos, figuras y conclusiones. 2) Lectura con lápiz, rehaciendo cada derivación. 3) Cierra con 5 ideas clave + 1 gráfico dibujado de memoria (esto prepara el quiz).</div>'+
+   '<div class="guide"><b>📁 Caso HBS:</b> lee las preguntas guía antes del caso, subraya datos (CC/PIB, tipo de cambio, deuda), y lleva 1–2 preguntas para la discusión.</div>'+
+   '<div class="guide"><b>✏️ Quiz (15 min, al inicio de cada módulo):</b> repasa tus 5 ideas clave por lectura y las definiciones. No leas material nuevo el día antes.</div>'+
+   '<div class="guide"><b>🔁 Repaso post-clase:</b> dentro de 48 h, resume la clase en 1 página y anota dudas para el profesor.</div></div>';
+  document.getElementById("tab-hoy").innerHTML=html;
+}
+
+/* ============ MAPA ============ */
+function renderMapa(){
+  const nm=nextMod();
+  let html='<div class="sub" style="margin:4px 0 12px">Toca un módulo para ver sesiones, tareas y notas. Para marcar los módulos 1 y 2 de una vez, usa “Marcar módulo completo”.</div><div class="map">';
+  MODS.forEach(m=>{
+    const tl=modTasks(m.id),P=prog(tl);
+    const state=P.pct===100?"done":(nm&&nm.id===m.id?"current":"");
+    const open=S.open[m.id]!==undefined?S.open[m.id]:(nm&&nm.id===m.id);
+    const dl=diff(TODAY,m.date);
+    const ph={antes:tl.filter(t=>!["clase","post"].includes(t.type)),clase:tl.filter(t=>t.type==="clase"),post:tl.filter(t=>t.type==="post")};
+    html+='<div class="mod '+state+(open?" open":"")+'" data-mod="'+m.id+'"><div class="node">'+(state==="done"?"✓":m.id)+'</div><div class="card">'+
+      '<div class="mhead" data-toggle="'+m.id+'"><div class="grow"><div class="ttl">Módulo '+m.id+' · '+m.title+'</div>'+
+      '<div class="sub">'+fmt(m.date)+' · '+m.when+' · sala '+m.room+' · '+(dl>=0?rel(m.date):"pasado")+(state==="current"?' · <b style="color:var(--accent)">ESTÁS AQUÍ</b>':"")+'</div>'+
+      '<div class="row" style="margin-top:6px"><div class="bar grow'+(P.pct===100?" ok":"")+'"><i style="width:'+P.pct+'%"></i></div><span class="hrs">'+P.pct+'%</span></div></div><span class="chev">▶</span></div>'+
+      '<div class="mbody">'+(m.warn?'<div class="alert warn">'+m.warn+'</div>':"")+
+      '<h3>Sesiones</h3><table><tr><th>N°</th><th>Horario</th><th>Tema</th><th>Lectura</th></tr>'+
+      m.sessions.map(s=>'<tr><td>'+s[0]+'</td><td>'+s[1]+'</td><td>'+s[2]+'</td><td>'+s[3]+'</td></tr>').join("")+'</table>'+
+      '<h3>1 · Antes de la clase</h3>'+ph.antes.map(t=>taskRow(t)).join("")+
+      '<h3>2 · Día de clase</h3>'+ph.clase.map(t=>taskRow(t)).join("")+
+      '<h3>3 · Después</h3>'+ph.post.map(t=>taskRow(t)).join("")+
+      '<div class="row" style="margin-top:10px"><button class="btn primary" data-all="'+m.id+'">Marcar módulo completo</button><button class="btn" data-none="'+m.id+'">Desmarcar todo</button></div>'+
+      '<h3>Mis notas y dudas</h3><textarea data-note="'+m.id+'" placeholder="Dudas para el profesor, ideas clave…">'+esc(S.notes[m.id]||"")+'</textarea>'+
+      extraBlock(m,P.pct)+'</div></div></div>';
+  });
+  html+='</div>';
+  document.getElementById("tab-mapa").innerHTML=html;
+}
+function extraBlock(m,pct){
+  const unlocked=pct===100||S.unlock[m.id];
+  let s='<div class="extra"><h3>🚀 Ir más allá (optativo) · Módulo '+m.id+'</h3>';
+  if(!unlocked)s+='<div class="sub">🔒 Se desbloquea cuando el módulo obligatorio esté al 100% ('+pct+'% ahora). <button class="btn small" data-unlock="'+m.id+'">ver igual</button></div>';
+  else s+=m.beyond.map((b,i)=>{const id="x"+m.id+"-"+i,d=!!S.extra[id];return'<div class="task'+(d?" done":"")+'"><input type="checkbox" data-x="'+id+'"'+(d?" checked":"")+'><div><div class="t">'+esc(b[0])+'</div><div class="note">'+esc(b[1])+'</div></div></div>';}).join("")+
+    (pct<100?'<div class="alert warn">Recuerda: primero completa el 100% obligatorio de este módulo.</div>':"");
+  return s+'</div>';
+}
+
+/* ============ CALENDARIO ============ */
+function renderCal(){
+  const all=allTasks().sort((a,b)=>a.plan.localeCompare(b.plan));
+  const byDay={};all.forEach(t=>(byDay[t.plan]=byDay[t.plan]||[]).push(t));
+  let html='<div class="card"><div class="row"><h2 class="grow" style="margin:0">Plan día a día</h2><label class="sub"><input type="checkbox" id="hideDone"'+(S.hideDone?" checked":"")+'> ocultar hechas</label></div>'+
+    '<div class="sub">Horas estimadas por día. Los días con clase aparecen destacados.</div>';
+  let lastWeek="";
+  Object.keys(byDay).sort().forEach(d=>{
+    let list=byDay[d];if(S.hideDone)list=list.filter(t=>!S.done[t.id]);if(!list.length)return;
+    const dt=toDate(d),mon=new Date(dt);mon.setDate(dt.getDate()-((dt.getDay()+6)%7));const wk=ymd(mon);
+    if(wk!==lastWeek){html+='<div class="week">Semana del '+fmt(wk)+'</div>';lastWeek=wk;}
+    const isClass=MODS.find(m=>m.date===d);
+    const hrs=list.filter(t=>t.type!=="clase").reduce((a,t)=>a+t.h,0);
+    html+='<div class="day'+(d===TODAY?" istoday":"")+(isClass?" class":"")+'"><div class="d">'+fmt(d)+(d===TODAY?"<br>HOY":"")+'</div><div class="grow">'+
+      (isClass?'<div class="ci"><b>🎓 Módulo '+isClass.id+' · '+isClass.when+' · '+isClass.room+'</b></div>':"")+
+      list.filter(t=>t.type!=="clase").map(t=>'<div class="ci'+(S.done[t.id]?" done":"")+'">'+(t.prio?'<span class="tag '+t.prio+'">'+t.prio+'</span> ':"")+esc(t.title)+' <span class="hrs">'+h(t.h)+'</span></div>').join("")+
+      '</div><div class="hrs">'+(hrs?h(hrs):"")+'</div></div>';
+  });
+  html+='</div>';
+  document.getElementById("tab-cal").innerHTML=html;
+}
+
+/* ============ MÁS ALLÁ ============ */
+function renderMas(){
+  let html='<div class="alert info">Material optativo para profundizar. Regla: <b>primero el 100% obligatorio</b> del módulo; por eso cada bloque se desbloquea al completarlo.</div>';
+  const nX=Object.values(S.extra).filter(Boolean).length;
+  html+='<div class="card"><b>Extras completados: '+nX+'</b> <span class="sub">(no cuentan para el progreso obligatorio)</span></div>';
+  MODS.forEach(m=>{html+='<div class="card">'+extraBlock(m,prog(modTasks(m.id)).pct)+'</div>';});
+  html+='<div class="card"><h2>Bibliografía del curso</h2>'+Object.entries(BOOKS).map(([k,v])=>'<div class="ci"><b>['+k+']</b> '+v+'</div>').join("")+
+    '<div class="sub" style="margin-top:8px">Casos HBS obligatorios: 723-023 Singapur · HKU804 Tailandia · 706-002 EE.UU. · 715-019 Argentina I · 714-036 Argentina II · 718-022 Hank y Nancy.</div></div>';
+  document.getElementById("tab-mas").innerHTML=html;
+}
+
+/* ============ AJUSTES ============ */
+function renderAjustes(){
+  const html='<div class="card"><h2>Mi grupo de presentación</h2><select id="grp"><option value="0">— elegir —</option>'+
+    [1,2,3,4,5].map(g=>{const m=MODS.find(x=>x.group===g);return'<option value="'+g+'"'+(+S.group===g?" selected":"")+'>Grupo '+g+' · Módulo '+m.id+' ('+fmt(m.date)+')</option>';}).join("")+
+    '</select><div class="sub" style="margin-top:6px">Agrega 5 tareas de preparación antes de la fecha de tu presentación.</div></div>'+
+    '<div class="card"><h2>Agregar tarea o fecha propia</h2><div class="sub">Pruebas, entregas o evaluaciones que no estén en la planificación.</div>'+
+    '<div class="grid2" style="margin-top:8px"><input type="text" id="cT" placeholder="Ej: Prueba 1"><input type="date" id="cD" value="'+TODAY+'">'+
+    '<input type="number" id="cH" step="0.5" min="0" value="2" placeholder="Horas"><select id="cM">'+MODS.map(m=>'<option value="'+m.id+'">Módulo '+m.id+'</option>').join("")+'</select></div>'+
+    '<button class="btn primary" id="cAdd" style="margin-top:8px">Agregar</button></div>'+
+    '<div class="card"><h2>Respaldo</h2><div class="row"><button class="btn" id="exp">Exportar progreso</button><label class="btn">Importar<input type="file" id="imp" accept=".json" class="hidden"></label><button class="btn" id="rst">Reiniciar todo</button></div>'+
+    '<div class="sub" style="margin-top:6px">El progreso vive en este navegador. Exporta para pasarlo del computador al celular.</div></div>';
+  document.getElementById("tab-ajustes").innerHTML=html;
+}
+
+/* ============ EVENTOS ============ */
+function renderAll(){renderHoy();renderMapa();renderCal();renderMas();renderAjustes();}
+document.addEventListener("change",e=>{
+  const t=e.target;
+  if(t.dataset.id){S.done[t.dataset.id]=t.checked;save();renderAll();}
+  else if(t.dataset.x){S.extra[t.dataset.x]=t.checked;save();renderAll();}
+  else if(t.id==="hideDone"){S.hideDone=t.checked;save();renderCal();}
+  else if(t.id==="grp"){S.group=+t.value;save();renderAll();}
+  else if(t.id==="imp"&&t.files[0]){const r=new FileReader();r.onload=()=>{try{S=Object.assign(S,JSON.parse(r.result));save();renderAll();alert("Progreso importado.");}catch(err){alert("Archivo no válido.");}};r.readAsText(t.files[0]);}
+});
+document.addEventListener("input",e=>{if(e.target.dataset.note){S.notes[e.target.dataset.note]=e.target.value;save();}});
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-toggle],[data-all],[data-none],[data-unlock],[data-del],#cAdd,#exp,#rst,#themeBtn,nav.tabs button");
+  if(!t)return;
+  if(t.dataset.tab){document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("on",b===t));document.querySelectorAll("section").forEach(s=>s.classList.toggle("hidden",s.id!=="tab-"+t.dataset.tab));window.scrollTo(0,0);return;}
+  if(t.dataset.toggle){const id=t.dataset.toggle,el=t.closest(".mod");const o=!el.classList.contains("open");el.classList.toggle("open",o);S.open[id]=o;save();return;}
+  if(t.dataset.all){modTasks(+t.dataset.all).forEach(x=>S.done[x.id]=true);save();renderAll();return;}
+  if(t.dataset.none){modTasks(+t.dataset.none).forEach(x=>S.done[x.id]=false);save();renderAll();return;}
+  if(t.dataset.unlock){S.unlock[t.dataset.unlock]=true;save();renderAll();return;}
+  if(t.dataset.del){S.custom=S.custom.filter(c=>c.id!==t.dataset.del);save();renderAll();return;}
+  if(t.id==="cAdd"){const ti=document.getElementById("cT").value.trim();if(!ti)return;S.custom.push({id:"c"+Date.now(),title:ti,plan:document.getElementById("cD").value||TODAY,h:+document.getElementById("cH").value||0,mod:+document.getElementById("cM").value});save();renderAll();alert("Tarea agregada.");return;}
+  if(t.id==="exp"){const b=new Blob([JSON.stringify(S,null,1)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="progreso-macro-"+TODAY+".json";a.click();return;}
+  if(t.id==="rst"){if(confirm("¿Borrar todo el progreso de este navegador?")){S={done:{},extra:{},group:0,custom:[],notes:{},open:{},unlock:{},hideDone:false};save();renderAll();}return;}
+  if(t.id==="themeBtn"){const r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;r.dataset.theme=dark?"light":"dark";try{localStorage.setItem(KEY+"-theme",r.dataset.theme);}catch(err){}}
+});
+try{const th=localStorage.getItem(KEY+"-theme");if(th)document.documentElement.dataset.theme=th;}catch(e){}
+renderAll();
+</script>
+</body>
+</html>
