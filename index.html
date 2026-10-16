@@ -2,492 +2,753 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mapa Macro Internacional</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16233a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ruta Macro">
+<title>Ruta Macro Internacional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#f5f4ef;--card:#ffffff;--ink:#1d2229;--muted:#69707a;--line:#e3e1d9;
-  --accent:#1f5f99;--accent-soft:#e3eef8;--ok:#2e7d4f;--ok-soft:#e2f2e8;
-  --warn:#a8660d;--warn-soft:#fbf0dc;--bad:#b83227;--bad-soft:#fbe5e2;--extra:#6b4fa0;--extra-soft:#efe9f8;
+  --paper:#f2f4f8; --card:#ffffff; --ink:#16233a; --ink2:#4d5a70; --faint:#8a94a6; --rule:#dfe3ea;
+  --route:#2347d6; --route-soft:#e6ebfc; --done:#12946b; --done-soft:#dff3eb;
+  --signal:#f2a900; --signal-soft:#fff4d6; --danger:#d33f49; --danger-soft:#fde8ea;
+  --violet:#7a4cc2; --violet-soft:#efe8fa;
+  --shadow:0 1px 2px rgba(22,35,58,.06),0 8px 24px rgba(22,35,58,.08);
+  --display:"Bricolage Grotesque",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,sans-serif;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#15181c;--card:#1e2228;--ink:#e8e9eb;--muted:#9aa1ab;--line:#30353d;
-    --accent:#6ea8dc;--accent-soft:#1c2f42;--ok:#5cbf85;--ok-soft:#1c3327;
-    --warn:#e0a548;--warn-soft:#3a2d17;--bad:#ef7a6e;--bad-soft:#3d1f1c;--extra:#b39ae0;--extra-soft:#2c2540;
+    --paper:#0f1626; --card:#18223a; --ink:#eef1f7; --ink2:#b4bdd0; --faint:#7f8aa3; --rule:#2a3552;
+    --route:#7d98ff; --route-soft:#1f2b52; --done:#38c28f; --done-soft:#143a2e;
+    --signal:#ffc23d; --signal-soft:#3a2f12; --danger:#ff6b74; --danger-soft:#3d1a20;
+    --violet:#b893f2; --violet-soft:#2b2245; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
   }
 }
 :root[data-theme="dark"]{
-  --bg:#15181c;--card:#1e2228;--ink:#e8e9eb;--muted:#9aa1ab;--line:#30353d;
-  --accent:#6ea8dc;--accent-soft:#1c2f42;--ok:#5cbf85;--ok-soft:#1c3327;
-  --warn:#e0a548;--warn-soft:#3a2d17;--bad:#ef7a6e;--bad-soft:#3d1f1c;--extra:#b39ae0;--extra-soft:#2c2540;
+  --paper:#0f1626; --card:#18223a; --ink:#eef1f7; --ink2:#b4bdd0; --faint:#7f8aa3; --rule:#2a3552;
+  --route:#7d98ff; --route-soft:#1f2b52; --done:#38c28f; --done-soft:#143a2e;
+  --signal:#ffc23d; --signal-soft:#3a2f12; --danger:#ff6b74; --danger-soft:#3d1a20;
+  --violet:#b893f2; --violet-soft:#2b2245; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-.wrap{max-width:860px;margin:0 auto;padding:16px 16px 80px}
-h1{font-size:22px;margin:4px 0 2px}
-h2{font-size:17px;margin:0 0 10px}
-h3{font-size:15px;margin:14px 0 6px}
-.sub{color:var(--muted);font-size:13px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0}
-.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden}
-.bar>i{display:block;height:100%;background:var(--accent);border-radius:6px;transition:width .3s}
-.bar.ok>i{background:var(--ok)}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.grow{flex:1}
-.big{font-size:28px;font-weight:700}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
-.stat{background:var(--bg);border-radius:8px;padding:8px;text-align:center}
-.stat b{display:block;font-size:18px}
-.stat span{font-size:12px;color:var(--muted)}
-.alert{border-radius:10px;padding:10px 12px;margin:8px 0;font-size:14px;border-left:4px solid}
-.alert.bad{background:var(--bad-soft);border-color:var(--bad)}
-.alert.warn{background:var(--warn-soft);border-color:var(--warn)}
-.alert.info{background:var(--accent-soft);border-color:var(--accent)}
-.alert.ok{background:var(--ok-soft);border-color:var(--ok)}
-nav.tabs{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;gap:6px;padding:8px 0;overflow-x:auto}
-nav.tabs button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 12px;border-radius:20px;font-size:14px;cursor:pointer}
-nav.tabs button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
-.task{display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--line);align-items:flex-start}
-.task:first-child{border-top:0}
-.task input{width:20px;height:20px;margin-top:2px;flex:0 0 auto;accent-color:var(--ok);cursor:pointer}
-.task .t{font-weight:600}
-.task.done .t{text-decoration:line-through;color:var(--muted)}
-.meta{font-size:12px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
-.note{font-size:13px;color:var(--muted);margin-top:3px}
-.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:10px;background:var(--bg);border:1px solid var(--line);color:var(--muted)}
-.tag.A{background:var(--bad-soft);color:var(--bad);border-color:transparent}
-.tag.B{background:var(--warn-soft);color:var(--warn);border-color:transparent}
-.tag.C{background:var(--accent-soft);color:var(--accent);border-color:transparent}
-.tag.late{background:var(--bad);color:#fff;border-color:transparent}
-.tag.today{background:var(--accent);color:#fff;border-color:transparent}
-.tag.grp{background:var(--extra-soft);color:var(--extra);border-color:transparent}
-/* mapa */
-.map{position:relative;padding-left:34px}
-.map:before{content:"";position:absolute;left:14px;top:10px;bottom:10px;width:3px;background:var(--line);border-radius:2px}
-.mod{position:relative;margin:0 0 14px}
-.node{position:absolute;left:-34px;top:14px;width:31px;height:31px;border-radius:50%;background:var(--card);border:3px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:var(--muted)}
-.mod.done .node{background:var(--ok);border-color:var(--ok);color:#fff}
-.mod.current .node{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 0 5px var(--accent-soft)}
-.mod .card{margin:0;cursor:default}
-.mod.current .card{border-color:var(--accent);border-width:2px}
-.mhead{display:flex;gap:10px;align-items:center;cursor:pointer}
-.mhead .ttl{font-weight:700}
-.chev{transition:transform .2s;color:var(--muted)}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font:16px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--route);outline-offset:2px;border-radius:8px}
+.app{max-width:560px;margin:0 auto;padding:0 16px calc(96px + env(safe-area-inset-bottom))}
+h1,h2,h3{font-family:var(--display);margin:0;letter-spacing:-.01em}
+
+/* ---------- barra superior ---------- */
+.top{display:flex;align-items:center;justify-content:space-between;padding:18px 0 6px}
+.brand{font-family:var(--display);font-weight:800;font-size:19px}
+.brand small{display:block;font:400 13px var(--body);color:var(--faint);margin-top:1px}
+.iconbtn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--card);box-shadow:var(--shadow);font-size:19px}
+
+/* ---------- la línea (elemento firma) ---------- */
+.line{position:relative;display:flex;margin:14px -4px 6px;padding-bottom:4px}
+.line .track,.line .fill{position:absolute;top:19px;height:6px;border-radius:3px;left:calc(100%/12);}
+.line .track{right:calc(100%/12);background:var(--rule)}
+.line .fill{background:var(--done);transition:width .5s ease}
+.stn{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px 2px;min-width:0}
+.stn .dot{width:44px;height:44px;border-radius:50%;background:var(--card);border:5px solid var(--rule);display:grid;place-items:center;font:800 16px var(--display);color:var(--faint);transition:transform .2s}
+.stn.done .dot{background:var(--done);border-color:var(--done);color:#fff}
+.stn.cur .dot{background:var(--signal);border-color:var(--card);color:#16233a;box-shadow:0 0 0 4px var(--signal);transform:scale(1.08)}
+.stn .nm{font-size:11px;line-height:1.2;text-align:center;color:var(--ink2);font-weight:700;max-width:60px;hyphens:manual;overflow-wrap:break-word}
+.stn .dt{font-size:11px;color:var(--faint)}
+.stn.cur .nm{color:var(--ink)}
+.here{position:absolute;top:-16px;font-size:11px;font-weight:700;background:var(--ink);color:var(--paper);padding:1px 7px;border-radius:9px;white-space:nowrap}
+
+/* ---------- reloj de la próxima clase ---------- */
+.next{display:flex;align-items:center;gap:12px;margin:12px 0 4px;padding:12px 14px;border-radius:14px;background:var(--route-soft)}
+.next .big{font:800 26px/1 var(--display);color:var(--route);white-space:nowrap}
+.next .txt{font-size:14px;color:var(--ink2);line-height:1.35}
+.next .txt b{color:var(--ink)}
+
+/* ---------- avisos ---------- */
+.notice{margin:10px 0;padding:12px 14px;border-radius:14px;font-size:14.5px;line-height:1.45;display:flex;gap:10px;align-items:flex-start}
+.notice .ic{font-size:18px;line-height:1.2}
+.notice.danger{background:var(--danger-soft)}
+.notice.signal{background:var(--signal-soft)}
+.notice.done{background:var(--done-soft)}
+.notice .acts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:7px 12px;border-radius:20px;background:var(--card);font-weight:700;font-size:13.5px;box-shadow:var(--shadow)}
+
+/* ---------- tarjeta de foco ---------- */
+.focus{margin:16px 0;background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:20px 18px 18px;position:relative;overflow:hidden}
+.focus:before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--tcol,var(--route))}
+.frow{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13.5px;color:var(--faint)}
+.kind{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--tcol,var(--route))}
+.focus h2{font-size:23px;line-height:1.2;margin:10px 0 12px;font-weight:700}
+.facts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.fact{background:var(--paper);border-radius:8px;padding:4px 9px;font-size:13.5px;color:var(--ink2)}
+.fact.late{background:var(--danger);color:#fff;font-weight:700}
+.why{font-size:15px;color:var(--ink2);margin:0 0 12px}
+.how{list-style:none;margin:0 0 14px;padding:0;counter-reset:h}
+.how li{counter-increment:h;position:relative;padding:7px 0 7px 36px;font-size:15px;border-top:1px dashed var(--rule)}
+.how li:first-child{border-top:0}
+.how li:before{content:counter(h);position:absolute;left:0;top:6px;width:24px;height:24px;border-radius:50%;background:var(--paper);display:grid;place-items:center;font:700 13px var(--display);color:var(--ink2)}
+.guide{background:var(--violet-soft);border-radius:12px;padding:10px 12px;font-size:14.5px;margin-bottom:14px}
+.guide b{color:var(--violet)}
+.cta{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:56px;border-radius:16px;background:var(--done);color:#fff;font:700 17px var(--body);box-shadow:0 4px 14px rgba(18,148,107,.3);transition:transform .1s}
+.cta:active{transform:scale(.98)}
+.cta.blue{background:var(--route);box-shadow:0 4px 14px rgba(35,71,214,.28)}
+.ghost{display:block;width:100%;margin-top:8px;padding:10px;color:var(--faint);font-size:14.5px;border-radius:12px}
+
+/* ---------- lista del día ---------- */
+.sec{margin:22px 0 8px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sec h3{font-size:18px}
+.sec span{font-size:13.5px;color:var(--faint)}
+.load{height:8px;border-radius:4px;background:var(--rule);overflow:hidden;margin:4px 0 6px}
+.load i{display:block;height:100%;background:var(--route);border-radius:4px}
+.load.over i{background:var(--danger)}
+.rowt{display:flex;gap:12px;align-items:center;padding:11px 0;border-top:1px solid var(--rule)}
+.rowt:first-of-type{border-top:0}
+.chk{flex:0 0 auto;width:30px;height:30px;border-radius:50%;border:2.5px solid var(--rule);display:grid;place-items:center;font-weight:800;color:#fff;transition:background .2s,border-color .2s}
+.chk:hover{border-color:var(--done)}
+.done .chk,.chk.on{background:var(--done);border-color:var(--done)}
+.rowt .tt{font-weight:700;font-size:15px;line-height:1.3}
+.rowt .mm{font-size:13px;color:var(--faint)}
+.rowt.done .tt{text-decoration:line-through;color:var(--faint)}
+.rowt .grow{flex:1;min-width:0}
+
+/* ---------- ruta ---------- */
+.mod{background:var(--card);border-radius:18px;box-shadow:var(--shadow);margin:12px 0;overflow:hidden}
+.mh{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:14px}
+.mh .num{flex:0 0 auto;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font:800 17px var(--display);background:var(--paper);color:var(--ink2)}
+.mod.done .num{background:var(--done);color:#fff}
+.mod.cur .num{background:var(--signal);color:#16233a}
+.mh .t{font:700 16.5px/1.25 var(--display)}
+.mh .s{font-size:13px;color:var(--faint);margin-top:2px}
+.mh .bar{height:6px;border-radius:3px;background:var(--rule);margin-top:7px;overflow:hidden}
+.mh .bar i{display:block;height:100%;background:var(--done)}
+.mh .chev{margin-left:auto;color:var(--faint);font-size:20px;transition:transform .2s}
 .mod.open .chev{transform:rotate(90deg)}
-.mbody{display:none;margin-top:10px}
-.mod.open .mbody{display:block}
-table{width:100%;border-collapse:collapse;font-size:13px}
-td,th{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line);vertical-align:top}
-th{color:var(--muted);font-weight:600}
-.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 11px;border-radius:8px;font-size:13px;cursor:pointer}
-.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-.btn.small{padding:3px 8px;font-size:12px}
-.extra{background:var(--extra-soft);border-radius:10px;padding:10px 12px;margin-top:12px}
-.extra h3{color:var(--extra);margin-top:0}
-.locked{opacity:.55}
-textarea,input[type=text],input[type=date],input[type=number],select{width:100%;padding:7px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;font-size:14px}
-textarea{min-height:70px}
-.guide{background:var(--bg);border-radius:8px;padding:8px 10px;font-size:13px;margin-top:8px}
-.day{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
-.day .d{width:92px;flex:0 0 auto;font-size:13px;color:var(--muted)}
-.day.istoday .d{color:var(--accent);font-weight:700}
-.day.class{background:var(--accent-soft);border-radius:8px;padding:8px}
-.week{font-weight:700;margin-top:14px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-.ci{font-size:13px;padding:2px 0}
-.ci.done{text-decoration:line-through;color:var(--muted)}
-.hrs{font-size:12px;color:var(--muted);white-space:nowrap}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-@media (max-width:560px){.stats{grid-template-columns:repeat(3,1fr)}.grid2{grid-template-columns:1fr}.day .d{width:74px}}
-.hidden{display:none}
-footer{color:var(--muted);font-size:12px;text-align:center;margin-top:30px}
+.mb{display:none;padding:0 14px 16px}
+.mod.open .mb{display:block}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.phase{margin:16px 0 4px;font:700 14px var(--display);color:var(--ink2);display:flex;justify-content:space-between;gap:8px}
+.phase span{font:400 13px var(--body);color:var(--faint)}
+.steps{position:relative}
+.step{display:flex;gap:12px;position:relative;padding:8px 0}
+.step:not(:last-child):after{content:"";position:absolute;left:14px;top:40px;bottom:-8px;width:2.5px;background:var(--rule)}
+.step.done:not(:last-child):after{background:var(--done)}
+.step .chk{background:var(--card);color:var(--ink2);font:700 13px var(--display)}
+.step.done .chk{color:#fff}
+.sb{flex:1;text-align:left;min-width:0}
+.sb .tt{font-weight:700;font-size:15px;line-height:1.3}
+.step.done .sb .tt{color:var(--faint);text-decoration:line-through}
+.sb .mm{font-size:13px;color:var(--faint)}
+.sx{display:none;margin-top:8px;font-size:14px;color:var(--ink2)}
+.step.exp .sx{display:block}
+.sx ol{margin:6px 0;padding-left:20px}
+details.more{margin-top:12px;border-top:1px solid var(--rule);padding-top:10px}
+details.more summary{cursor:pointer;font-weight:700;font-size:14.5px;color:var(--ink2);list-style:none}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary:before{content:"▸ ";color:var(--faint)}
+details.more[open] summary:before{content:"▾ "}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+td{padding:6px 4px;border-top:1px solid var(--rule);vertical-align:top}
+td:first-child{color:var(--faint);white-space:nowrap}
+textarea{width:100%;min-height:80px;margin-top:8px;padding:10px;border-radius:12px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);font:15px var(--body)}
+.extra{margin-top:14px;border-radius:14px;background:var(--violet-soft);padding:12px 14px}
+.extra h4{margin:0 0 4px;font:700 15px var(--display);color:var(--violet)}
+.extra .lock{font-size:14px;color:var(--ink2)}
+.xrow{display:flex;gap:10px;padding:8px 0;border-top:1px solid rgba(122,76,194,.18)}
+.xrow:first-of-type{border-top:0}
+.xrow .chk{width:24px;height:24px;border-width:2px;font-size:12px}
+.xrow.done .chk{background:var(--violet);border-color:var(--violet)}
+.xrow .tt{font-weight:700;font-size:14px}
+.xrow .mm{font-size:13px;color:var(--ink2)}
+
+/* ---------- semana ---------- */
+.wkhead{display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px}
+.wkhead h3{font-size:18px}
+.wkbtn{width:40px;height:40px;border-radius:50%;background:var(--card);box-shadow:var(--shadow);font-size:18px}
+.day{background:var(--card);border-radius:14px;padding:12px 14px;margin:8px 0}
+.day.today{box-shadow:0 0 0 2.5px var(--route)}
+.day.past{opacity:.6}
+.dh{display:flex;justify-content:space-between;align-items:baseline}
+.dh b{font-family:var(--display);font-size:16px}
+.dh span{font-size:13px;color:var(--faint)}
+.cls{display:inline-block;margin:6px 0 2px;background:var(--signal-soft);border-radius:8px;padding:3px 9px;font-size:13.5px;font-weight:700}
+.it{font-size:14.5px;padding:4px 0;display:flex;gap:8px}
+.it.done{color:var(--faint);text-decoration:line-through}
+.it .h{margin-left:auto;color:var(--faint);font-size:13px;white-space:nowrap}
+.empty{font-size:14px;color:var(--faint);padding:4px 0}
+
+/* ---------- barra inferior ---------- */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--card);border-top:1px solid var(--rule);padding:6px 8px calc(6px + env(safe-area-inset-bottom));display:flex;justify-content:center}
+.tabs .in{display:flex;max-width:560px;width:100%}
+.tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;font-size:12.5px;font-weight:700;color:var(--faint);border-radius:12px}
+.tabs button .i{font-size:21px;line-height:1}
+.tabs button.on{color:var(--route);background:var(--route-soft)}
+
+/* ---------- hojas y modales ---------- */
+.veil{position:fixed;inset:0;z-index:40;background:rgba(10,16,30,.45);display:none;align-items:flex-end;justify-content:center}
+.veil.show{display:flex}
+.sheet{background:var(--card);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:24px 24px 0 0;padding:20px 18px calc(24px + env(safe-area-inset-bottom));animation:up .25s ease}
+@keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+@media (min-width:600px){.veil{align-items:center}.sheet{border-radius:24px}}
+.sheet h2{font-size:24px;line-height:1.2;margin-bottom:6px}
+.sheet p.lead{color:var(--ink2);margin:0 0 16px}
+.dots{display:flex;gap:6px;margin-bottom:16px}
+.dots i{width:28px;height:5px;border-radius:3px;background:var(--rule)}
+.dots i.on{background:var(--route)}
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;margin:8px 0;border-radius:14px;border:2px solid var(--rule);background:var(--card)}
+.opt.sel{border-color:var(--route);background:var(--route-soft)}
+.opt .n{width:34px;height:34px;flex:0 0 auto;border-radius:50%;background:var(--paper);display:grid;place-items:center;font:800 15px var(--display)}
+.opt.sel .n{background:var(--route);color:#fff}
+.opt .tt{font-weight:700}
+.opt .mm{font-size:13px;color:var(--faint)}
+.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.grid5 .opt{justify-content:center;flex-direction:column;gap:2px;padding:12px 4px;margin:0}
+.stepper{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:14px;background:var(--paper);margin:8px 0}
+.stepper .lbl b{display:block}
+.stepper .lbl span{font-size:13px;color:var(--faint)}
+.stepper .ctl{display:flex;align-items:center;gap:12px}
+.stepper .ctl button{width:40px;height:40px;border-radius:50%;background:var(--card);box-shadow:var(--shadow);font-size:20px;font-weight:700}
+.stepper .ctl output{font:800 20px var(--display);min-width:48px;text-align:center}
+.navrow{display:flex;gap:10px;margin-top:18px}
+.navrow .ghost{margin:0;width:auto;flex:0 0 auto;padding:0 16px}
+.sgroup{margin:18px 0 0;padding-top:14px;border-top:1px solid var(--rule)}
+.sgroup h3{font-size:16px;margin-bottom:6px}
+.field{width:100%;padding:11px;border-radius:12px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);font:15px var(--body);margin:5px 0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.plain{display:inline-block;padding:9px 14px;border-radius:12px;background:var(--paper);font-weight:700;font-size:14px;margin:4px 6px 4px 0}
+.plain.red{color:var(--danger)}
+.celebrate{text-align:center}
+.celebrate .boom{font-size:56px;line-height:1;margin:8px 0}
+
+/* ---------- toast ---------- */
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;z-index:30;background:var(--ink);color:var(--paper);padding:11px 8px 11px 16px;border-radius:14px;display:flex;align-items:center;gap:12px;font-size:14.5px;transition:all .25s;max-width:calc(100% - 32px)}
+.toast.show{opacity:1;transform:translateX(-50%);pointer-events:auto}
+.toast button{color:var(--signal);font-weight:700;padding:4px 10px}
+.hidden{display:none!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="row">
-    <div class="grow">
-      <h1>Mapa de estudio · Macroeconomía Internacional</h1>
-      <div class="sub">Magíster · 6 módulos · 18 sesiones · Sep–Nov 2026</div>
-    </div>
-    <button class="btn" id="themeBtn" title="Cambiar tema">◐</button>
-  </div>
-
-  <nav class="tabs" id="tabs">
-    <button data-tab="hoy" class="on">Hoy</button>
-    <button data-tab="mapa">Mapa</button>
-    <button data-tab="cal">Calendario</button>
-    <button data-tab="mas">Ir más allá</button>
-    <button data-tab="ajustes">Ajustes</button>
-  </nav>
-
-  <section id="tab-hoy"></section>
-  <section id="tab-mapa" class="hidden"></section>
-  <section id="tab-cal" class="hidden"></section>
-  <section id="tab-mas" class="hidden"></section>
-  <section id="tab-ajustes" class="hidden"></section>
-
-  <footer>El progreso se guarda en este navegador. Usa Ajustes → Exportar para respaldarlo o pasarlo a otro dispositivo.</footer>
+<div class="app">
+  <header class="top">
+    <div class="brand">Ruta Macro Internacional<small id="todayLbl"></small></div>
+    <button class="iconbtn" data-act="settings" aria-label="Ajustes">⚙︎</button>
+  </header>
+  <div id="line"></div>
+  <main id="view"></main>
 </div>
 
-<script>
-/* ============ DATOS DEL CURSO ============ */
-const BOOKS = {
-  SGUW:"Schmitt-Grohé, Uribe & Woodford (2022). International Macroeconomics. Princeton UP",
-  SGU:"Uribe & Schmitt-Grohé (2017). Open Economy Macroeconomics. Princeton UP",
-  ROM:"Romer (2019). Advanced Macroeconomics, 5ª ed. McGraw-Hill (autor: David Romer)",
-  DeG:"De Gregorio (2007). Macroeconomía: Teoría y Políticas. Pearson"
-};
-const PRIO = {A:"A · primero",B:"B · después",C:"C · al final"};
-const TYPE = {lectura:"📖 Lectura",caso:"📁 Caso HBS",quiz:"✏️ Prep. quiz",clase:"🎓 Clase",post:"🔁 Repaso",grupo:"👥 Presentación",custom:"📌 Propia"};
+<nav class="tabs" aria-label="Secciones"><div class="in">
+  <button data-act="tab" data-tab="now" class="on"><span class="i">◉</span>Ahora</button>
+  <button data-act="tab" data-tab="route"><span class="i">⟟</span>Ruta</button>
+  <button data-act="tab" data-tab="week"><span class="i">▦</span>Semana</button>
+</div></nav>
 
+<div class="veil" id="veil"><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast"><span id="toastMsg"></span><button data-act="undo">Deshacer</button></div>
+
+<script>
+/* =========================================================
+   DATOS DEL CURSO (fuente: programa + planificación de clases)
+   ========================================================= */
 const MODS = [
- {id:1,title:"Crecimiento Económico",date:"2026-09-26",when:"Sábado 9:00–14:00",room:"P-304",group:0,
-  sessions:[[1,"9:00–10:30","Quiz y Hechos Estilizados","DeG 11"],[2,"10:30–12:30","Modelo de Solow y Crecimiento Endógeno","ROM 1, 3 · DeG 12"],[3,"12:30–14:00","Caso Singapur (presenta: Profesor)","HBS 723-023"]],
+ {id:1,short:"Creci&shy;miento",title:"Crecimiento Económico",date:"2026-09-26",start:"09:00",when:"sábado 9:00–14:00",room:"P-304",group:0,presenter:"el profesor",
+  sessions:[["9:00","Quiz y Hechos Estilizados","DeG 11"],["10:30","Modelo de Solow y Crecimiento Endógeno","ROM 1 y 3, DeG 12"],["12:30","Caso Singapur","HBS 723-023"]],
   tasks:[
-   ["m1-deg11","lectura","DeG cap. 11 — Hechos estilizados del crecimiento","DeG 11",2,"2026-09-20","A"],
-   ["m1-rom1","lectura","Romer cap. 1 — Modelo de Solow","ROM 1",3,"2026-09-21","A"],
-   ["m1-rom3","lectura","Romer cap. 3 — Crecimiento endógeno","ROM 3",3,"2026-09-23","A"],
-   ["m1-deg12","lectura","DeG cap. 12 — Apoyo crecimiento","DeG 12",2,"2026-09-24","B"],
-   ["m1-case","caso","Caso Singapur: ‘From Third World to First’","HBS 723-023",2,"2026-09-25","A","Preguntas guía: ¿el crecimiento vino de acumulación de factores o de productividad (PTF)? ¿Qué papel jugaron el ahorro obligatorio, la inversión extranjera y la apertura? ¿Qué dice Solow sobre su convergencia?"],
-   ["m1-quiz","quiz","Repaso para el quiz de lectura (15 min)","—",1,"2026-09-25","A"],
-   ["m1-s1","clase","Sesión 1 · Quiz y Hechos Estilizados","",1.5,"2026-09-26"],
-   ["m1-s2","clase","Sesión 2 · Solow y Crecimiento Endógeno","",2,"2026-09-26"],
-   ["m1-s3","clase","Sesión 3 · Caso Singapur","",1.5,"2026-09-26"],
-   ["m1-post","post","Repaso post-clase: resumen de 1 página + dudas","—",1.5,"2026-09-27","B"]
-  ],
-  beyond:[
-   ["Ejercicios del final de Romer cap. 1 y 3","Fijan la mecánica de Solow y de los modelos AK / Romer."],
-   ["Mankiw, Romer & Weil (1992), QJE — ‘A Contribution to the Empirics of Economic Growth’","El Solow aumentado con capital humano; muy citado en exámenes."],
-   ["Young (1995), QJE — ‘The Tyranny of Numbers’","Contabilidad del crecimiento en Asia del Este; conecta directo con Singapur."],
-   ["Krugman (1994), Foreign Affairs — ‘The Myth of Asia's Miracle’","Lectura corta y provocadora sobre acumulación vs. productividad."],
-   ["Práctica con datos: Penn World Table","Replica los hechos de Kaldor para Chile y Singapur (PIB per cápita, K/Y, participación del trabajo)."]
-  ]},
- {id:2,title:"Introducción a las Economías Pequeñas y Abiertas",date:"2026-10-02",when:"Viernes 17:00–22:00",room:"P-304",group:1,
-  sessions:[[4,"17:00–18:30","Quiz y Hechos Estilizados","SGU 1"],[5,"18:30–20:30","Desbalances Globales y Balanza de Pagos","SGUW 1"],[6,"20:30–22:00","Caso Tailandia (presenta: Grupo 1)","HBS HKU804"]],
+   ["m1-deg11","lectura","De Gregorio, cap. 11: hechos estilizados del crecimiento","DeG 11",2],
+   ["m1-rom1","lectura","Romer, cap. 1: el modelo de Solow","ROM 1",3],
+   ["m1-rom3","lectura","Romer, cap. 3: crecimiento endógeno","ROM 3",3],
+   ["m1-deg12","lectura","De Gregorio, cap. 12: complemento de crecimiento","DeG 12",2],
+   ["m1-case","caso","Caso Singapur: “From Third World to First”","HBS 723-023",2,"¿El crecimiento vino de acumular capital y trabajo, o de productividad (PTF)? ¿Qué papel jugaron el ahorro obligatorio, la inversión extranjera y la apertura? ¿Qué predice Solow sobre su convergencia?"],
+   ["m1-quiz","quiz","Repasar para el quiz del módulo 1","",1],
+   ["m1-s1","clase","Sesión 1: Quiz y Hechos Estilizados","",1.5],
+   ["m1-s2","clase","Sesión 2: Solow y Crecimiento Endógeno","",2],
+   ["m1-s3","clase","Sesión 3: Caso Singapur","",1.5],
+   ["m1-post","post","Resumir el módulo 1 en una página","",1.5]],
+  beyond:[["Ejercicios del final de Romer, caps. 1 y 3","Fijan la mecánica de Solow y de los modelos de crecimiento endógeno."],
+   ["Mankiw, Romer y Weil (1992), QJE","El Solow aumentado con capital humano."],
+   ["Young (1995), QJE, “The Tyranny of Numbers”","Contabilidad del crecimiento en Asia del Este; conecta con Singapur."],
+   ["Krugman (1994), Foreign Affairs, “The Myth of Asia's Miracle”","Lectura corta sobre acumulación versus productividad."],
+   ["Penn World Table","Replica los hechos estilizados para Chile y Singapur."]]},
+ {id:2,short:"Econ. abierta",title:"Economías Pequeñas y Abiertas",date:"2026-10-02",start:"17:00",when:"viernes 17:00–22:00",room:"P-304",group:1,presenter:"el Grupo 1",
+  sessions:[["17:00","Quiz y Hechos Estilizados","SGU 1"],["18:30","Desbalances Globales y Balanza de Pagos","SGUW 1"],["20:30","Caso Tailandia","HBS HKU804"]],
   tasks:[
-   ["m2-sgu1","lectura","SGU cap. 1 — Hechos estilizados de economías abiertas","SGU 1",3,"2026-09-28","A"],
-   ["m2-sguw1","lectura","SGUW cap. 1 — Desbalances globales y balanza de pagos","SGUW 1",2.5,"2026-09-29","A"],
-   ["m2-case","caso","Caso Tailandia: ‘An Imbalance of Payments’","HBS HKU804",2,"2026-09-30","A","Preguntas guía: ¿cómo se financiaba el déficit de cuenta corriente (flujos de corto plazo, deuda en dólares)? ¿Por qué el tipo de cambio fijo hizo frágil la posición? Usa la identidad CC = S − I."],
-   ["m2-quiz","quiz","Repaso para el quiz de lectura","—",1,"2026-10-01","A"],
-   ["m2-s4","clase","Sesión 4 · Quiz y Hechos Estilizados","",1.5,"2026-10-02"],
-   ["m2-s5","clase","Sesión 5 · Desbalances Globales y BdP","",2,"2026-10-02"],
-   ["m2-s6","clase","Sesión 6 · Caso Tailandia","",1.5,"2026-10-02"],
-   ["m2-post","post","Repaso post-clase: resumen + identidades contables de la BdP","—",1.5,"2026-10-03","B"]
-  ],
-  beyond:[
-   ["Obstfeld & Rogoff (1996), Foundations of International Macroeconomics, cap. 1","La referencia de posgrado para el enfoque intertemporal."],
-   ["Bernanke (2005) — discurso ‘The Global Saving Glut and the U.S. Current Account Deficit’","Contexto para el caso EE.UU. del módulo 3."],
-   ["Radelet & Sachs (1998), Brookings Papers — ‘The East Asian Financial Crisis’","Profundiza el caso Tailandia."],
-   ["FMI — Manual de Balanza de Pagos (MBP6)","Para dominar la contabilidad de la BdP."],
-   ["Práctica con datos: Banco Central de Chile, Balanza de Pagos","Grafica cuenta corriente / PIB de Chile desde 2000."]
-  ]},
- {id:3,title:"La Cuenta Corriente",date:"2026-10-17",when:"Sábado 9:00–14:00",room:"P-304",group:2,
-  sessions:[[7,"9:00–10:30","Quiz y Determinantes de la Cuenta Corriente","SGUW 2, 3"],[8,"10:30–12:30","Los Términos de Intercambio","SGUW 4 · SGU 7 · DeG 6"],[9,"12:30–14:00","Caso Estados Unidos (presenta: Grupo 2)","HBS 706-002"]],
-  warn:"El programa dice “[SGUW] 7” para términos de intercambio, pero la planificación de clases dice “[SGU] 7”. Lee SGU 7 (planificación, más reciente) y confirma con el profesor.",
+   ["m2-sgu1","lectura","SGU, cap. 1: hechos estilizados de economías abiertas","SGU 1",3],
+   ["m2-sguw1","lectura","SGUW, cap. 1: desbalances globales y balanza de pagos","SGUW 1",2.5],
+   ["m2-case","caso","Caso Tailandia: “An Imbalance of Payments”","HBS HKU804",2,"¿Cómo se financiaba el déficit de cuenta corriente? ¿Por qué el tipo de cambio fijo hizo frágil la posición? Usa la identidad CC = S − I."],
+   ["m2-quiz","quiz","Repasar para el quiz del módulo 2","",1],
+   ["m2-s4","clase","Sesión 4: Quiz y Hechos Estilizados","",1.5],
+   ["m2-s5","clase","Sesión 5: Desbalances Globales y BdP","",2],
+   ["m2-s6","clase","Sesión 6: Caso Tailandia","",1.5],
+   ["m2-post","post","Resumir el módulo 2 en una página","",1.5]],
+  beyond:[["Obstfeld y Rogoff (1996), Foundations of International Macroeconomics, cap. 1","La referencia de posgrado del enfoque intertemporal."],
+   ["Bernanke (2005), discurso “The Global Saving Glut”","Contexto directo para el caso EE.UU."],
+   ["Radelet y Sachs (1998), Brookings Papers, “The East Asian Financial Crisis”","Profundiza el caso Tailandia."],
+   ["Banco Central de Chile: balanza de pagos","Grafica la cuenta corriente / PIB de Chile desde 2000."]]},
+ {id:3,short:"Cuenta corriente",title:"La Cuenta Corriente",date:"2026-10-17",start:"09:00",when:"sábado 9:00–14:00",room:"P-304",group:2,presenter:"el Grupo 2",
+  warn:"El programa dice “SGUW 7” para términos de intercambio y la planificación dice “SGU 7”. La guía usa SGU 7; confírmalo con el profesor.",
+  sessions:[["9:00","Quiz y Determinantes de la Cuenta Corriente","SGUW 2 y 3"],["10:30","Los Términos de Intercambio","SGUW 4, SGU 7, DeG 6"],["12:30","Caso Estados Unidos","HBS 706-002"]],
   tasks:[
-   ["m3-sguw2","lectura","SGUW cap. 2 — Determinantes de la cuenta corriente","SGUW 2",2.5,"2026-10-15","A"],
-   ["m3-sguw3","lectura","SGUW cap. 3 — Determinantes de la cuenta corriente","SGUW 3",3,"2026-10-16","A"],
-   ["m3-sguw4","lectura","SGUW cap. 4 — Términos de intercambio","SGUW 4",2.5,"2026-10-16","A"],
-   ["m3-case","caso","Caso EE.UU.: ‘The U.S. Current Account Deficit’","HBS 706-002",2,"2026-10-16","A","Preguntas guía: ¿el déficit refleja bajo ahorro de EE.UU. o exceso de ahorro del resto del mundo? ¿Es sostenible según la restricción intertemporal? Lleva 1–2 preguntas para la discusión."],
-   ["m3-deg6","lectura","DeG cap. 6 — Apoyo términos de intercambio","DeG 6",1,"2026-10-16","B"],
-   ["m3-sgu7","lectura","SGU cap. 7 — Términos de intercambio (lectura rápida si falta tiempo)","SGU 7",2,"2026-10-16","C","Ver la nota sobre SGU 7 / SGUW 7."],
-   ["m3-quiz","quiz","Repaso para el quiz: 5 ideas clave por capítulo","—",0.5,"2026-10-16","A"],
-   ["m3-s7","clase","Sesión 7 · Quiz y Determinantes de la CC","",1.5,"2026-10-17"],
-   ["m3-s8","clase","Sesión 8 · Términos de Intercambio","",2,"2026-10-17"],
-   ["m3-s9","clase","Sesión 9 · Caso Estados Unidos","",1.5,"2026-10-17"],
-   ["m3-post","post","Repaso post-clase + completar lo que quedó a medias","—",1.5,"2026-10-18","A"]
-  ],
-  beyond:[
-   ["Ejercicios del final de SGUW caps. 2–4","La mejor preparación para las pruebas: aplicar el modelo de 2 períodos."],
-   ["Obstfeld & Rogoff (1995) — ‘The Intertemporal Approach to the Current Account’, Handbook of International Economics vol. 3","Versión rigurosa de lo visto en clase."],
-   ["Obstfeld (2012), AER P&P — ‘Does the Current Account Still Matter?’","Debate moderno sobre la relevancia de la CC."],
-   ["Gourinchas & Rey (2007) — ‘From World Banker to World Venture Capitalist’","Efectos de valoración y el privilegio de EE.UU.: complemento al caso."],
-   ["Mendoza (1995), IER — ‘The Terms of Trade, the Real Exchange Rate, and Economic Fluctuations’","Shocks de términos de intercambio en economías pequeñas."],
-   ["Práctica con datos: precio del cobre vs. cuenta corriente de Chile","Aplica el efecto de los términos de intercambio a Chile."]
-  ]},
- {id:4,title:"El Tipo de Cambio Real",date:"2026-10-23",when:"Viernes 17:00–22:00",room:"P-303",group:3,
-  sessions:[[10,"17:00–18:30","Quiz y Determinantes del Tipo de Cambio","SGUW 9, 10"],[11,"18:30–20:30","Modelo TNT","SGUW 8"],[12,"20:30–22:00","Caso Argentina 1946–2002 (presenta: Grupo 3)","HBS 715-019"]],
-  warn:"Cambio de sala: este módulo es en la P-303, no en la P-304.",
+   ["m3-sguw2","lectura","SGUW, cap. 2: determinantes de la cuenta corriente","SGUW 2",2.5],
+   ["m3-sguw3","lectura","SGUW, cap. 3: determinantes de la cuenta corriente","SGUW 3",3],
+   ["m3-sguw4","lectura","SGUW, cap. 4: términos de intercambio","SGUW 4",2.5],
+   ["m3-case","caso","Caso EE.UU.: “The U.S. Current Account Deficit”","HBS 706-002",2,"¿El déficit refleja poco ahorro en EE.UU. o exceso de ahorro en el resto del mundo? ¿Es sostenible según la restricción intertemporal?"],
+   ["m3-deg6","lectura","De Gregorio, cap. 6: complemento de términos de intercambio","DeG 6",1],
+   ["m3-sgu7","lectura","SGU, cap. 7: términos de intercambio","SGU 7",2],
+   ["m3-quiz","quiz","Repasar para el quiz del módulo 3","",0.5],
+   ["m3-s7","clase","Sesión 7: Quiz y Determinantes de la CC","",1.5],
+   ["m3-s8","clase","Sesión 8: Términos de Intercambio","",2],
+   ["m3-s9","clase","Sesión 9: Caso Estados Unidos","",1.5],
+   ["m3-post","post","Resumir el módulo 3 en una página","",1.5]],
+  beyond:[["Ejercicios del final de SGUW, caps. 2 a 4","La mejor práctica para las pruebas: el modelo de dos períodos."],
+   ["Obstfeld y Rogoff (1995), “The Intertemporal Approach to the Current Account”","Handbook of International Economics, vol. 3."],
+   ["Obstfeld (2012), AER P&P, “Does the Current Account Still Matter?”","El debate moderno sobre la cuenta corriente."],
+   ["Gourinchas y Rey (2007), “From World Banker to World Venture Capitalist”","Efectos de valoración: complemento al caso EE.UU."],
+   ["Mendoza (1995), IER, sobre términos de intercambio y tipo de cambio real","Shocks de términos de intercambio en economías pequeñas."],
+   ["Precio del cobre y cuenta corriente de Chile","Aplica el efecto de los términos de intercambio con datos reales."]]},
+ {id:4,short:"Tipo de cambio",title:"El Tipo de Cambio Real",date:"2026-10-23",start:"17:00",when:"viernes 17:00–22:00",room:"P-303",group:3,presenter:"el Grupo 3",
+  warn:"Este módulo cambia de sala: es en la P-303.",alert:true,
+  sessions:[["17:00","Quiz y Determinantes del Tipo de Cambio","SGUW 9 y 10"],["18:30","Modelo TNT","SGUW 8"],["20:30","Caso Argentina 1946–2002","HBS 715-019"]],
   tasks:[
-   ["m4-sguw8","lectura","SGUW cap. 8 — Modelo TNT (léelo primero: es la base de los caps. 9–10)","SGUW 8",3,"2026-10-19","A"],
-   ["m4-sguw9","lectura","SGUW cap. 9 — Determinantes del tipo de cambio real","SGUW 9",3,"2026-10-20","A"],
-   ["m4-sguw10","lectura","SGUW cap. 10 — Determinantes del tipo de cambio real","SGUW 10",3,"2026-10-21","A"],
-   ["m4-case","caso","Caso Argentina I: ‘A Currency We Can Call Our Own’ (1946–2002)","HBS 715-019",2.5,"2026-10-22","A","Preguntas guía: ¿cómo interactúan populismo, déficit fiscal y tipo de cambio real? ¿Por qué colapsó la convertibilidad en 2001–02? Conéctalo con el modelo TNT: más gasto en no transables → apreciación real."],
-   ["m4-quiz","quiz","Repaso para el quiz (mañana del viernes)","—",1,"2026-10-23","A"],
-   ["m4-s10","clase","Sesión 10 · Quiz y Determinantes del TCR","",1.5,"2026-10-23"],
-   ["m4-s11","clase","Sesión 11 · Modelo TNT","",2,"2026-10-23"],
-   ["m4-s12","clase","Sesión 12 · Caso Argentina I","",1.5,"2026-10-23"],
-   ["m4-post","post","Repaso post-clase: dibuja el diagrama TNT de memoria","—",1.5,"2026-10-24","B"]
-  ],
-  beyond:[
-   ["Ejercicios del final de SGUW caps. 8–10","Practica estática comparativa en el modelo TNT."],
-   ["Rogoff (1996), JEL — ‘The Purchasing Power Parity Puzzle’","El clásico sobre la persistencia de las desviaciones de la PPC."],
-   ["Balassa (1964), JPE — ‘The Purchasing-Power Parity Doctrine: A Reappraisal’","Origen del efecto Balassa-Samuelson."],
-   ["Edwards (1989) — Real Exchange Rates, Devaluation, and Adjustment (MIT Press)","Tipo de cambio real en economías en desarrollo; muy útil para Latinoamérica."],
-   ["Práctica con datos: índice de tipo de cambio real del Banco Central de Chile","Compara con el índice Big Mac de The Economist."]
-  ]},
- {id:5,title:"Política Monetaria y Tipo de Cambio",date:"2026-11-07",when:"Sábado 9:00–14:00",room:"P-304",group:4,
-  sessions:[[13,"9:00–10:30","Quiz y Modelo TNT-DNWR","SGUW 13, 14 · SGU 9"],[14,"10:30–12:30","Crisis de Balanza de Pagos","SGUW 15 · SGU 11"],[15,"12:30–14:00","Caso Argentina 1997–2015 (presenta: Grupo 4)","HBS 714-036"]],
+   ["m4-sguw8","lectura","SGUW, cap. 8: el modelo TNT (base de los caps. 9 y 10)","SGUW 8",3],
+   ["m4-sguw9","lectura","SGUW, cap. 9: determinantes del tipo de cambio real","SGUW 9",3],
+   ["m4-sguw10","lectura","SGUW, cap. 10: determinantes del tipo de cambio real","SGUW 10",3],
+   ["m4-case","caso","Caso Argentina I: “A Currency We Can Call Our Own”","HBS 715-019",2.5,"¿Cómo se combinan populismo, déficit fiscal y tipo de cambio real? ¿Por qué cayó la convertibilidad en 2001–02? Usa el modelo TNT: más gasto en no transables aprecia el tipo de cambio real."],
+   ["m4-quiz","quiz","Repasar para el quiz del módulo 4","",1],
+   ["m4-s10","clase","Sesión 10: Quiz y Determinantes del TCR","",1.5],
+   ["m4-s11","clase","Sesión 11: Modelo TNT","",2],
+   ["m4-s12","clase","Sesión 12: Caso Argentina I","",1.5],
+   ["m4-post","post","Dibujar el diagrama TNT de memoria y resumir el módulo","",1.5]],
+  beyond:[["Ejercicios del final de SGUW, caps. 8 a 10","Estática comparativa en el modelo TNT."],
+   ["Rogoff (1996), JEL, “The Purchasing Power Parity Puzzle”","Por qué las desviaciones de la paridad duran tanto."],
+   ["Balassa (1964), JPE","Origen del efecto Balassa-Samuelson."],
+   ["Edwards (1989), Real Exchange Rates, Devaluation, and Adjustment","Tipo de cambio real en economías en desarrollo."],
+   ["Índice de tipo de cambio real del Banco Central de Chile","Compáralo con el índice Big Mac de The Economist."]]},
+ {id:5,short:"Política monetaria",title:"Política Monetaria y Tipo de Cambio",date:"2026-11-07",start:"09:00",when:"sábado 9:00–14:00",room:"P-304",group:4,presenter:"el Grupo 4",
+  sessions:[["9:00","Quiz y Modelo TNT-DNWR","SGUW 13 y 14, SGU 9"],["10:30","Crisis de Balanza de Pagos","SGUW 15, SGU 11"],["12:30","Caso Argentina 1997–2015","HBS 714-036"]],
   tasks:[
-   ["m5-sguw13","lectura","SGUW cap. 13 — Modelo TNT-DNWR","SGUW 13",3,"2026-10-26","A"],
-   ["m5-sguw14","lectura","SGUW cap. 14 — Modelo TNT-DNWR","SGUW 14",3,"2026-10-28","A"],
-   ["m5-sgu9a","lectura","SGU cap. 9 (1ª mitad) — Rigidez de salarios nominales","SGU 9",2.5,"2026-10-30","A"],
-   ["m5-sgu9b","lectura","SGU cap. 9 (2ª mitad) + rehacer derivaciones","SGU 9",2.5,"2026-10-31","A"],
-   ["m5-sguw15","lectura","SGUW cap. 15 — Crisis de balanza de pagos","SGUW 15",3,"2026-11-02","A"],
-   ["m5-sgu11","lectura","SGU cap. 11 — Crisis de balanza de pagos","SGU 11",3.5,"2026-11-04","A"],
-   ["m5-case","caso","Caso Argentina II: ‘Breaking Bad (the Rules)’ (1997–2015)","HBS 714-036",2.5,"2026-11-05","A","Preguntas guía: default de 2001, reestructuración y holdouts; inflación y crecimiento con el boom de commodities. ¿Qué predice el modelo TNT-DNWR sobre tipo de cambio fijo vs. devaluación y desempleo?"],
-   ["m5-quiz","quiz","Repaso para el quiz","—",1.5,"2026-11-06","A"],
-   ["m5-s13","clase","Sesión 13 · Quiz y TNT-DNWR","",1.5,"2026-11-07"],
-   ["m5-s14","clase","Sesión 14 · Crisis de BdP","",2,"2026-11-07"],
-   ["m5-s15","clase","Sesión 15 · Caso Argentina II","",1.5,"2026-11-07"],
-   ["m5-post","post","Repaso post-clase","—",1.5,"2026-11-08","B"]
-  ],
-  beyond:[
-   ["Schmitt-Grohé & Uribe (2016), JPE — ‘Downward Nominal Wage Rigidity, Currency Pegs, and Involuntary Unemployment’","El paper detrás del modelo TNT-DNWR."],
-   ["Krugman (1979), JMCB — ‘A Model of Balance-of-Payments Crises’","Modelo de crisis de primera generación."],
-   ["Obstfeld (1996), EER — ‘Models of Currency Crises with Self-Fulfilling Features’","Modelo de segunda generación."],
-   ["Kaminsky & Reinhart (1999), AER — ‘The Twin Crises’","Evidencia sobre crisis bancarias y cambiarias."],
-   ["Calvo & Reinhart (2002), QJE — ‘Fear of Floating’","Por qué los emergentes no dejan flotar su moneda."]
-  ]},
- {id:6,title:"Crisis Financieras y Default Soberano",date:"2026-11-20",when:"Viernes 17:00–22:00",room:"P-304",group:5,
-  sessions:[[16,"17:00–18:30","Quiz y Fricciones Financieras y Sudden Stops","SGU 12"],[17,"18:30–20:30","Default Soberano","SGU 13"],[18,"20:30–22:00","Caso Hank y Nancy (presenta: Grupo 5)","HBS 718-022"]],
+   ["m5-sguw13","lectura","SGUW, cap. 13: el modelo TNT-DNWR","SGUW 13",3],
+   ["m5-sguw14","lectura","SGUW, cap. 14: el modelo TNT-DNWR","SGUW 14",3],
+   ["m5-sgu9a","lectura","SGU, cap. 9, primera mitad: rigidez de salarios nominales","SGU 9",2.5],
+   ["m5-sgu9b","lectura","SGU, cap. 9, segunda mitad, rehaciendo las derivaciones","SGU 9",2.5],
+   ["m5-sguw15","lectura","SGUW, cap. 15: crisis de balanza de pagos","SGUW 15",3],
+   ["m5-sgu11","lectura","SGU, cap. 11: crisis de balanza de pagos","SGU 11",3.5],
+   ["m5-case","caso","Caso Argentina II: “Breaking Bad (the Rules)”","HBS 714-036",2.5,"Default de 2001, reestructuración y holdouts; inflación y crecimiento con el boom de materias primas. ¿Qué predice el modelo TNT-DNWR sobre tipo de cambio fijo, devaluación y desempleo?"],
+   ["m5-quiz","quiz","Repasar para el quiz del módulo 5","",1.5],
+   ["m5-s13","clase","Sesión 13: Quiz y TNT-DNWR","",1.5],
+   ["m5-s14","clase","Sesión 14: Crisis de BdP","",2],
+   ["m5-s15","clase","Sesión 15: Caso Argentina II","",1.5],
+   ["m5-post","post","Resumir el módulo 5 en una página","",1.5]],
+  beyond:[["Schmitt-Grohé y Uribe (2016), JPE, sobre rigidez salarial y tipos de cambio fijos","El paper detrás del modelo TNT-DNWR."],
+   ["Krugman (1979), JMCB, “A Model of Balance-of-Payments Crises”","Crisis de primera generación."],
+   ["Obstfeld (1996), EER, crisis cambiarias autocumplidas","Crisis de segunda generación."],
+   ["Kaminsky y Reinhart (1999), AER, “The Twin Crises”","Evidencia sobre crisis bancarias y cambiarias juntas."],
+   ["Calvo y Reinhart (2002), QJE, “Fear of Floating”","Por qué los emergentes no dejan flotar su moneda."]]},
+ {id:6,short:"Crisis y default",title:"Crisis Financieras y Default Soberano",date:"2026-11-20",start:"17:00",when:"viernes 17:00–22:00",room:"P-304",group:5,presenter:"el Grupo 5",
+  sessions:[["17:00","Quiz y Fricciones Financieras y Sudden Stops","SGU 12"],["18:30","Default Soberano","SGU 13"],["20:30","Caso Hank y Nancy","HBS 718-022"]],
   tasks:[
-   ["m6-sgu12a","lectura","SGU cap. 12 (1ª mitad) — Fricciones financieras y sudden stops","SGU 12",2.5,"2026-11-10","A"],
-   ["m6-sgu12b","lectura","SGU cap. 12 (2ª mitad)","SGU 12",2.5,"2026-11-12","A"],
-   ["m6-sgu13a","lectura","SGU cap. 13 (1ª mitad) — Default soberano","SGU 13",2.5,"2026-11-14","A"],
-   ["m6-sgu13b","lectura","SGU cap. 13 (2ª mitad)","SGU 13",2.5,"2026-11-16","A"],
-   ["m6-case","caso","Caso Hank y Nancy: crisis subprime, Lehman y el rescate","HBS 718-022",2.5,"2026-11-18","A","Preguntas guía: ¿por qué hubo una corrida sobre la banca en la sombra? ¿Por qué se dejó caer a Lehman y luego se rescató al sistema (TARP)? Conéctalo con fricciones financieras."],
-   ["m6-quiz","quiz","Repaso para el quiz","—",1.5,"2026-11-19","A"],
-   ["m6-s16","clase","Sesión 16 · Quiz, Fricciones y Sudden Stops","",1.5,"2026-11-20"],
-   ["m6-s17","clase","Sesión 17 · Default Soberano","",2,"2026-11-20"],
-   ["m6-s18","clase","Sesión 18 · Caso Hank y Nancy","",1.5,"2026-11-20"],
-   ["m6-post","post","Repaso integral del curso (para evaluaciones finales, si las hay)","—",2,"2026-11-22","B"]
-  ],
-  beyond:[
-   ["Calvo (1998), J. Applied Economics — ‘Capital Flows and Capital-Market Crises: The Simple Economics of Sudden Stops’","El origen del concepto de sudden stop."],
-   ["Mendoza (2010), AER — ‘Sudden Stops, Financial Crises, and Leverage’","Restricciones de colateral y crisis."],
-   ["Eaton & Gersovitz (1981), REStud — ‘Debt with Potential Repudiation’","El modelo base de default soberano."],
-   ["Arellano (2008), AER — ‘Default Risk and Income Fluctuations in Emerging Economies’","La versión cuantitativa moderna (y estudia el caso argentino)."],
-   ["Reinhart & Rogoff (2009) — This Time Is Different","Panorama histórico de crisis y defaults."],
-   ["Gorton & Metrick (2012), JFE — ‘Securitized Banking and the Run on Repo’","La corrida de 2008 sobre la banca en la sombra."]
-  ]}
+   ["m6-sgu12a","lectura","SGU, cap. 12, primera mitad: fricciones financieras y sudden stops","SGU 12",2.5],
+   ["m6-sgu12b","lectura","SGU, cap. 12, segunda mitad","SGU 12",2.5],
+   ["m6-sgu13a","lectura","SGU, cap. 13, primera mitad: default soberano","SGU 13",2.5],
+   ["m6-sgu13b","lectura","SGU, cap. 13, segunda mitad","SGU 13",2.5],
+   ["m6-case","caso","Caso Hank y Nancy: crisis subprime, Lehman y el rescate","HBS 718-022",2.5,"¿Por qué hubo una corrida sobre la banca en la sombra? ¿Por qué se dejó caer a Lehman y después se rescató al sistema? Conéctalo con las fricciones financieras."],
+   ["m6-quiz","quiz","Repasar para el quiz del módulo 6","",1.5],
+   ["m6-s16","clase","Sesión 16: Quiz, Fricciones y Sudden Stops","",1.5],
+   ["m6-s17","clase","Sesión 17: Default Soberano","",2],
+   ["m6-s18","clase","Sesión 18: Caso Hank y Nancy","",1.5],
+   ["m6-post","post","Repaso integral de todo el curso","",2]],
+  beyond:[["Calvo (1998), “The Simple Economics of Sudden Stops”","El origen del concepto de sudden stop."],
+   ["Mendoza (2010), AER, “Sudden Stops, Financial Crises, and Leverage”","Restricciones de colateral y crisis."],
+   ["Eaton y Gersovitz (1981), REStud","El modelo base de default soberano."],
+   ["Arellano (2008), AER, sobre riesgo de default en emergentes","La versión cuantitativa moderna, calibrada para Argentina."],
+   ["Reinhart y Rogoff (2009), This Time Is Different","Ocho siglos de crisis y defaults."],
+   ["Gorton y Metrick (2012), JFE, “Securitized Banking and the Run on Repo”","La corrida de 2008 sobre la banca en la sombra."]]}
 ];
 
-/* ============ ESTADO ============ */
-const KEY = "mapa-macro-intl-2026-v1";
-let S = {done:{},extra:{},group:0,custom:[],notes:{},open:{},unlock:{},hideDone:false};
-try{const r=localStorage.getItem(KEY); if(r) S=Object.assign(S,JSON.parse(r));}catch(e){}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+const TYPES = {
+  lectura:{name:"Lectura",icon:"📖",col:"var(--route)",why:"Entra en el quiz de 15 minutos con que parte el módulo, y es la base de la clase.",
+    how:["Hojea títulos, figuras y conclusiones (10 minutos).","Lee con lápiz y rehaz cada ecuación y cada gráfico.","Cierra escribiendo 5 ideas clave y dibuja un gráfico de memoria."]},
+  caso:{name:"Caso HBS",icon:"📁",col:"var(--violet)",why:"Se discute en la sesión de caso. Llegar con datos y preguntas es lo que se nota en clase.",
+    how:["Lee primero las preguntas guía de abajo.","Lee el caso marcando datos: cuenta corriente, tipo de cambio, deuda.","Responde cada pregunta en 5 líneas y anota una pregunta propia para la discusión."]},
+  quiz:{name:"Repaso para el quiz",icon:"✏️",col:"var(--signal)",why:"El módulo parte con un quiz de lectura de 15 minutos.",
+    how:["Relee tus 5 ideas clave de cada lectura.","Explica en voz alta un gráfico por capítulo.","No empieces material nuevo hoy."]},
+  clase:{name:"Clase",icon:"🎓",col:"var(--done)",why:"Asistir y participar. Marca cada sesión al terminarla.",
+    how:["Llega con tus dudas anotadas.","Toma notas al margen de tus resúmenes."]},
+  post:{name:"Repaso después de clase",icon:"🔁",col:"var(--ink2)",why:"Ordenar lo visto antes de 72 horas evita olvidarlo y te deja material listo para las pruebas.",
+    how:["Resume el módulo en una página.","Anota dudas para preguntarle al profesor.","Termina cualquier lectura que haya quedado a medias."]},
+  grupo:{name:"Tu presentación",icon:"👥",col:"var(--danger)",why:"Tu grupo expone el caso durante 45 minutos y luego guía la discusión.",how:[]},
+  custom:{name:"Fecha propia",icon:"📌",col:"var(--ink2)",why:"Una fecha que agregaste tú.",how:[]}
+};
+const GROUP_STEPS = [
+  ["leer","Leer el caso a fondo y juntar los datos clave",3,["Lee el caso completo dos veces.","Haz una tabla con las cifras principales y sus años."]],
+  ["reparto","Reunirse con el grupo y repartir las secciones",1,["Acuerden la estructura de los 45 minutos.","Asignen una sección por persona, con fecha."]],
+  ["modelo","Conectar el caso con el modelo del módulo",4,["Elige el gráfico del modelo que explica el caso.","Busca datos actualizados para mostrar qué pasó después."]],
+  ["slides","Armar las diapositivas para 45 minutos",4,["Una idea por diapositiva, unas 15 en total.","Cierra con 3 preguntas para abrir la discusión."]],
+  ["ensayo","Ensayar con cronómetro",1.5,["Ensayo completo, midiendo cada sección.","Prepara respuestas a las preguntas más probables."]]
+];
+const BOOKS = [["SGUW","Schmitt-Grohé, Uribe y Woodford (2022), International Macroeconomics. Texto principal."],
+  ["SGU","Uribe y Schmitt-Grohé (2017), Open Economy Macroeconomics. Texto principal."],
+  ["ROM","Romer (2019), Advanced Macroeconomics, 5.ª ed. El autor es David Romer."],
+  ["DeG","De Gregorio (2007), Macroeconomía: Teoría y Políticas."]];
 
-/* ============ FECHAS ============ */
-function pad(n){return String(n).padStart(2,"0");}
-function ymd(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());}
-const qs = new URLSearchParams(location.search);
-const TODAY = qs.get("hoy") || ymd(new Date());
-function toDate(s){const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d);}
-function addDays(s,n){const d=toDate(s);d.setDate(d.getDate()+n);return ymd(d);}
-function diff(a,b){return Math.round((toDate(b)-toDate(a))/86400000);}
-function fmt(s,long){return toDate(s).toLocaleDateString("es-CL",long?{weekday:"long",day:"numeric",month:"long"}:{weekday:"short",day:"numeric",month:"short"});}
-function rel(s){const n=diff(TODAY,s);if(n===0)return"hoy";if(n===1)return"mañana";if(n===-1)return"ayer";return n>0?"en "+n+" días":"hace "+(-n)+" días";}
+/* =========================================================
+   ESTADO
+   ========================================================= */
+const KEY="ruta-macro-v2", OLD="mapa-macro-intl-2026-v1";
+const fresh=()=>({done:{},extra:{},group:0,custom:[],notes:{},cap:{wd:3,we:5},later:{},onboarded:false});
+let S=fresh();
+try{
+  const r=localStorage.getItem(KEY);
+  if(r) S=Object.assign(fresh(),JSON.parse(r));
+  else{const o=localStorage.getItem(OLD);if(o){const p=JSON.parse(o);S.done=p.done||{};S.group=p.group||0;S.notes=p.notes||{};S.custom=p.custom||[];}}
+}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 
-/* ============ TAREAS ============ */
-function baseTasks(){
+/* =========================================================
+   FECHAS
+   ========================================================= */
+const pad=n=>String(n).padStart(2,"0");
+const ymd=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const Q=new URLSearchParams(location.search);
+const TODAY=Q.get("hoy")||ymd(new Date());
+const toDate=s=>{const[y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+const addDays=(s,n)=>{const d=toDate(s);d.setDate(d.getDate()+n);return ymd(d)};
+const diff=(a,b)=>Math.round((toDate(b)-toDate(a))/864e5);
+const fmt=(s,o)=>toDate(s).toLocaleDateString("es-CL",o||{weekday:"short",day:"numeric",month:"short"}).replace(/\./g,"");
+const fmtLong=s=>fmt(s,{weekday:"long",day:"numeric",month:"long"});
+const hrs=n=>(Math.round(n*10)/10).toString().replace(".",",")+" h";
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const prepDeadline=m=>m.start>="12:00"?m.date:addDays(m.date,-1);
+function when(s){const n=diff(TODAY,s);if(n===0)return"hoy";if(n===1)return"mañana";if(n===-1)return"ayer";return n>1?fmt(s):"hace "+(-n)+" días";}
+
+/* =========================================================
+   TAREAS Y PLAN AUTOMÁTICO
+   ========================================================= */
+function allTasks(){
   const out=[];
-  MODS.forEach(m=>m.tasks.forEach(t=>out.push({id:t[0],type:t[1],title:t[2],ref:t[3],h:t[4],plan:t[5],prio:t[6]||"",note:t[7]||"",mod:m.id})));
+  MODS.forEach(m=>{
+    const dl=prepDeadline(m); let i=0;
+    m.tasks.forEach(t=>{
+      const o={id:t[0],type:t[1],title:t[2],ref:t[3],h:t[4],note:t[5]||"",mod:m.id,ord:m.id*100+(i++)*2+1,how:TYPES[t[1]].how};
+      if(o.type==="clase"){o.fixed=m.date;o.earliest=o.deadline=m.date;}
+      else if(o.type==="post"){o.earliest=addDays(m.date,1);o.deadline=addDays(m.date,3);}
+      else{o.earliest="2026-09-01";o.deadline=dl;}
+      out.push(o);
+    });
+    if(+S.group===m.group&&m.group){
+      GROUP_STEPS.forEach((g,k)=>out.push({id:"g"+m.group+"-"+g[0],type:"grupo",title:g[1],ref:"Grupo "+m.group,h:g[2],how:g[3],note:"",mod:m.id,ord:m.id*100+k*2+2,earliest:addDays(m.date,-14),deadline:dl}));
+    }
+  });
+  S.custom.forEach(c=>out.push({id:c.id,type:"custom",title:c.title,ref:"",h:+c.h||0,how:[],note:"",mod:+c.mod,ord:99999,fixed:c.date,earliest:c.date,deadline:c.date}));
   return out;
 }
-function groupTasks(){
-  if(!S.group)return[];
-  const m=MODS.find(x=>x.group===+S.group); if(!m)return[];
-  const g=[["leer",-12,"Lectura profunda del caso y datos clave",3],["reparto",-10,"Reunión de grupo: repartir secciones",1],["analisis",-7,"Conectar el caso con el modelo del módulo (gráficos, datos actualizados)",4],["slides",-4,"Armar slides para 45 minutos",4],["ensayo",-1,"Ensayo cronometrado + 3 preguntas para la discusión",1.5]];
-  return g.map(x=>({id:"g"+S.group+"-"+x[0],type:"grupo",title:"Tu presentación: "+x[2],ref:"Grupo "+S.group,h:x[3],plan:addDays(m.date,x[1]),prio:"A",note:"",mod:m.id}));
+function capOf(d){
+  const w=toDate(d).getDay(), we=w===0||w===6;
+  let c=we?S.cap.we:S.cap.wd;
+  const cls=MODS.find(m=>m.date===d);
+  if(cls) c=cls.start>="12:00"?Math.min(c,2):Math.floor(c/2);
+  return c;
 }
-function customTasks(){return S.custom.map(c=>Object.assign({type:"custom",prio:"",note:"",ref:""},c));}
-function allTasks(){return baseTasks().concat(groupTasks(),customTasks());}
-function modTasks(id){return allTasks().filter(t=>t.mod===id);}
-function prog(list){const tot=list.reduce((a,t)=>a+t.h,0);const d=list.filter(t=>S.done[t.id]).reduce((a,t)=>a+t.h,0);return{tot,d,pct:tot?Math.round(100*d/tot):0,n:list.length,nd:list.filter(t=>S.done[t.id]).length};}
-function nextMod(){return MODS.find(m=>m.date>=TODAY);}
-function h(n){return (Math.round(n*10)/10).toString().replace(".",",")+" h";}
-function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+let P=null;
+function buildPlan(){
+  const T=allTasks(),plan={},late={},over={},used={},last={};
+  T.forEach(t=>{if(!S.done[t.id]&&t.fixed)plan[t.id]=t.fixed;});
+  T.filter(t=>!S.done[t.id]&&!t.fixed)
+   .sort((a,b)=>a.deadline.localeCompare(b.deadline)||a.ord-b.ord)
+   .forEach(t=>{
+     const key=t.mod+(t.type==="post"?"p":"");
+     let start=[TODAY,t.earliest,last[key]||TODAY].sort().pop(), day=null;
+     if(t.deadline<TODAY){day=TODAY;late[t.id]=1;}
+     else{
+       if(start>t.deadline)start=t.deadline;
+       for(let d=start;d<=t.deadline;d=addDays(d,1)){const c=capOf(d),u=used[d]||0;if(c<=0)continue;if(u+t.h<=c+1e-9||u===0){day=d;break;}}
+       if(!day){let best=null;for(let d=start;d<=t.deadline;d=addDays(d,1)){const r=(used[d]||0)-capOf(d);if(!best||r<best.r)best={d,r};}day=best?best.d:t.deadline;over[t.id]=1;}
+     }
+     plan[t.id]=day;used[day]=(used[day]||0)+t.h;last[key]=day;
+   });
+  P={T,plan,late,over,used};
+}
+const modTasks=id=>P.T.filter(t=>t.mod===id);
+function modPct(id){const l=modTasks(id),tot=l.reduce((a,t)=>a+t.h,0),d=l.filter(t=>S.done[t.id]).reduce((a,t)=>a+t.h,0);return tot?Math.round(100*d/tot):0;}
+const nextMod=()=>MODS.find(m=>m.date>=TODAY);
+function todayQueue(){
+  return P.T.filter(t=>!S.done[t.id]&&P.plan[t.id]===TODAY)
+    .sort((a,b)=>(P.late[b.id]?1:0)-(P.late[a.id]?1:0)||(S.later[a.id]===TODAY?1:0)-(S.later[b.id]===TODAY?1:0)||a.deadline.localeCompare(b.deadline)||a.ord-b.ord);
+}
+function nextAhead(){return P.T.filter(t=>!S.done[t.id]&&t.type!=="clase"&&t.type!=="custom"&&P.plan[t.id]>TODAY).sort((a,b)=>P.plan[a.id].localeCompare(P.plan[b.id])||a.ord-b.ord)[0];}
 
-function taskRow(t,opts={}){
-  const done=!!S.done[t.id];
-  const late=!done&&t.type!=="clase"&&t.plan<TODAY;
-  const tags=[];
-  if(late)tags.push('<span class="tag late">atrasada</span>');
-  else if(!done&&t.plan===TODAY)tags.push('<span class="tag today">hoy</span>');
-  if(t.prio)tags.push('<span class="tag '+t.prio+'">'+PRIO[t.prio]+'</span>');
-  if(t.type==="grupo")tags.push('<span class="tag grp">tu grupo</span>');
-  const meta=[TYPE[t.type]];
-  if(t.ref&&t.ref!=="—")meta.push(esc(t.ref));
-  meta.push(h(t.h));
-  meta.push((t.type==="clase"?"":"plan: ")+fmt(t.plan));
-  if(opts.mod)meta.push("Módulo "+t.mod);
-  return '<div class="task'+(done?" done":"")+'"><input type="checkbox" data-id="'+t.id+'"'+(done?" checked":"")+' aria-label="Completar">'+
-    '<div class="grow"><div class="t">'+esc(t.title)+'</div><div class="meta">'+meta.map(x=>"<span>"+x+"</span>").join("·")+" "+tags.join(" ")+'</div>'+
-    (t.note?'<div class="note">'+esc(t.note)+'</div>':"")+
-    (t.type==="custom"?' <button class="btn small" data-del="'+t.id+'">eliminar</button>':"")+'</div></div>';
+/* =========================================================
+   VISTAS
+   ========================================================= */
+let TAB="now", WEEK=0, OPEN=null, EXP={};
+function render(){
+  buildPlan();
+  document.getElementById("todayLbl").textContent=fmtLong(TODAY);
+  renderLine();
+  const v=document.getElementById("view");
+  v.innerHTML=TAB==="now"?viewNow():TAB==="route"?viewRoute():viewWeek();
+  document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===TAB));
 }
 
-/* ============ HOY ============ */
-function renderHoy(){
-  const all=allTasks(), study=all.filter(t=>t.type!=="clase");
-  const P=prog(all), nm=nextMod();
-  let html='<div class="card"><div class="row"><div class="grow"><div class="sub">Progreso total del curso</div><div class="big">'+P.pct+'%</div></div>'+
-    '<div class="sub" style="text-align:right">'+fmt(TODAY,true)+'</div></div>'+
-    '<div class="bar ok"><i style="width:'+P.pct+'%"></i></div>'+
-    '<div class="stats"><div class="stat"><b>'+P.nd+'/'+P.n+'</b><span>tareas</span></div><div class="stat"><b>'+h(P.d)+'</b><span>de '+h(P.tot)+'</span></div>'+
-    '<div class="stat"><b>'+MODS.filter(m=>prog(modTasks(m.id)).pct===100).length+'/6</b><span>módulos al 100%</span></div></div></div>';
+function renderLine(){
+  const nm=nextMod(); let doneN=0;
+  for(const m of MODS){if(modPct(m.id)===100)doneN++;else break;}
+  const w=(Math.min(doneN,5)/5)*(100*10/12);
+  document.getElementById("line").innerHTML='<div class="line" role="list" aria-label="Módulos del curso"><div class="track"></div><div class="fill" style="width:'+w+'%"></div>'+
+    MODS.map(m=>{const p=modPct(m.id),st=p===100?"done":(nm&&nm.id===m.id?"cur":"");
+      return '<button class="stn '+st+'" role="listitem" data-act="goto" data-mod="'+m.id+'" aria-label="Módulo '+m.id+', '+m.title+', '+p+'% completo">'+
+      (st==="cur"?'<span class="here">Estás aquí</span>':"")+'<span class="dot">'+(p===100?"✓":m.id)+'</span><span class="nm">'+m.short+'</span><span class="dt">'+fmt(m.date,{day:"numeric",month:"short"}).replace(/\./g,"")+'</span></button>';}).join("")+'</div>';
+}
 
-  // alertas
-  const alerts=[];
-  const late=study.filter(t=>!S.done[t.id]&&t.plan<TODAY);
-  if(late.length)alerts.push(["bad","Tienes <b>"+late.length+"</b> tarea(s) atrasada(s) ("+h(late.reduce((a,t)=>a+t.h,0))+"). Aparecen primero en la lista de abajo."]);
+function countdown(m){
+  const [hh,mm]=m.start.split(":").map(Number);
+  const t=toDate(m.date);t.setHours(hh,mm,0,0);
+  const ms=t-new Date();
+  if(Q.get("hoy")){const n=diff(TODAY,m.date);return n<=0?"hoy":n+(n===1?" día":" días");}
+  if(ms<=0)return ms>-5*3600e3?"ahora":"hoy";
+  const d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/36e5);
+  return d>0?d+" d "+h+" h":h>0?h+" h":Math.max(1,Math.round(ms/6e4))+" min";
+}
+
+function viewNow(){
+  const nm=nextMod(); let html="";
   if(nm){
-    const dl=diff(TODAY,nm.date);
-    const rem=modTasks(nm.id).filter(t=>!S.done[t.id]&&t.type!=="clase"&&t.type!=="post");
-    const remH=rem.reduce((a,t)=>a+t.h,0);
-    const perDay=remH/Math.max(1,dl);
-    alerts.push([dl<=2?"warn":"info","Próxima clase: <b>Módulo "+nm.id+" · "+nm.title+"</b> — "+fmt(nm.date,true)+" ("+rel(nm.date)+"), "+nm.when+", sala <b>"+nm.room+"</b>. Te faltan "+h(remH)+" de preparación."]);
-    if(remH>0&&perDay>4)alerts.push(["bad","<b>Modo prioridad:</b> necesitarías ~"+h(perDay)+" por día para llegar. Haz primero las tareas <b>A</b> (sirven para el quiz y la clase), después B y C. Lo que no alcances queda como repaso post-clase. Igual es obligatorio terminarlo."]);
-    if(nm.warn)alerts.push(["warn",nm.warn]);
-    if(S.group&&nm.group===+S.group)alerts.push(["warn","<b>¡Este módulo presenta tu grupo!</b> 45 minutos de exposición + discusión."]);
-  } else alerts.push(["ok","Terminaron las clases del programa. Revisa si hay evaluaciones finales y agrégalas en Ajustes."]);
-  if(!S.group)alerts.push(["info","Indica tu número de grupo en <b>Ajustes</b> para que la guía programe la preparación de tu presentación."]);
-  html+=alerts.map(a=>'<div class="alert '+a[0]+'">'+a[1]+'</div>').join("");
+    const isGroup=+S.group===nm.group;
+    html+='<div class="next"><div class="big">'+countdown(nm)+'</div><div class="txt">para la clase del <b>módulo '+nm.id+'</b>, '+fmtLong(nm.date).split(",")[0]+' '+nm.when.split(" ")[1]+', sala <b>'+nm.room+'</b>'+(isGroup?'. <b>Presenta tu grupo.</b>':'')+'</div></div>';
+  }
+  html+=noticesHTML(nm);
+  const q=todayQueue();
+  const focus=q[0]||nextAhead();
+  if(focus) html+=focusHTML(focus,q.length?{pos:1,total:q.length}:null);
+  else html+='<div class="focus celebrate"><div class="boom">🏁</div><h2>Terminaste la ruta del curso</h2><p class="why">Si hay pruebas finales, agrégalas en Ajustes y la guía armará el repaso.</p></div>';
 
-  // hoy
-  const classToday=MODS.find(m=>m.date===TODAY);
-  const ord={A:0,B:1,C:2,"":1};
-  const todo=study.filter(t=>!S.done[t.id]&&t.plan<=TODAY).sort((a,b)=>(a.plan<TODAY?0:1)-(b.plan<TODAY?0:1)||ord[a.prio]-ord[b.prio]||a.plan.localeCompare(b.plan));
-  html+='<div class="card"><h2>Qué estudiar hoy</h2>';
-  if(classToday)html+='<div class="alert info">🎓 Hoy hay clase: Módulo '+classToday.id+', '+classToday.when+', sala '+classToday.room+'. Marca cada sesión al terminarla (en el Mapa).</div>';
-  if(todo.length){html+='<div class="sub">Tiempo estimado: '+h(todo.reduce((a,t)=>a+t.h,0))+'</div>'+todo.map(t=>taskRow(t,{mod:1})).join("");}
-  else html+='<p>Estás al día. 🎉 Puedes adelantar lo próximo o, si el módulo está al 100%, ir a <b>Ir más allá</b>.</p>';
-  html+='</div>';
-
-  const up=study.filter(t=>!S.done[t.id]&&t.plan>TODAY).sort((a,b)=>a.plan.localeCompare(b.plan)).slice(0,4);
-  if(up.length)html+='<div class="card"><h2>Lo que viene</h2>'+up.map(t=>taskRow(t,{mod:1})).join("")+'</div>';
-
-  html+='<div class="card"><h2>Cómo estudiar cada tipo de tarea</h2>'+
-   '<div class="guide"><b>📖 Lectura (capítulo):</b> 1) 10 min hojeando títulos, figuras y conclusiones. 2) Lectura con lápiz, rehaciendo cada derivación. 3) Cierra con 5 ideas clave + 1 gráfico dibujado de memoria (esto prepara el quiz).</div>'+
-   '<div class="guide"><b>📁 Caso HBS:</b> lee las preguntas guía antes del caso, subraya datos (CC/PIB, tipo de cambio, deuda), y lleva 1–2 preguntas para la discusión.</div>'+
-   '<div class="guide"><b>✏️ Quiz (15 min, al inicio de cada módulo):</b> repasa tus 5 ideas clave por lectura y las definiciones. No leas material nuevo el día antes.</div>'+
-   '<div class="guide"><b>🔁 Repaso post-clase:</b> dentro de 48 h, resume la clase en 1 página y anota dudas para el profesor.</div></div>';
-  document.getElementById("tab-hoy").innerHTML=html;
+  if(q.length>1){
+    const usedToday=P.used[TODAY]||0,cap=capOf(TODAY);
+    html+='<div class="sec"><h3>También para hoy</h3><span>'+hrs(usedToday)+' de '+hrs(cap)+' disponibles</span></div>'+
+      '<div class="load'+(usedToday>cap?" over":"")+'"><i style="width:'+Math.min(100,100*usedToday/Math.max(cap,.1))+'%"></i></div>'+
+      q.slice(1).map(t=>rowHTML(t)).join("");
+  }
+  const up=P.T.filter(t=>!S.done[t.id]&&t.type!=="clase"&&P.plan[t.id]>TODAY).sort((a,b)=>P.plan[a.id].localeCompare(P.plan[b.id])||a.ord-b.ord).filter(t=>!focus||t.id!==focus.id).slice(0,3);
+  if(up.length) html+='<div class="sec"><h3>Lo que viene</h3><span>reorganizado según tus horas</span></div>'+up.map(t=>rowHTML(t,true)).join("");
+  return html;
 }
 
-/* ============ MAPA ============ */
-function renderMapa(){
+function noticesHTML(nm){
+  const out=[];
+  const late=P.T.filter(t=>P.late[t.id]);
+  if(late.length) out.push(["danger","⏰","Tienes <b>"+late.length+" paso"+(late.length>1?"s":"")+" atrasado"+(late.length>1?"s":"")+"</b>. Los puse primero en tu lista de hoy."]);
+  if(nm){
+    const dl=prepDeadline(nm);
+    const need=P.T.filter(t=>t.mod===nm.id&&!S.done[t.id]&&!["clase","post","custom"].includes(t.type)).reduce((a,t)=>a+t.h,0);
+    let avail=0;for(let d=TODAY;d<=dl;d=addDays(d,1))avail+=capOf(d);
+    if(need>avail+0.01) out.push(["signal","⚡","Te faltan <b>"+hrs(need)+"</b> de preparación y tienes <b>"+hrs(avail)+"</b> hasta la clase. Sigue el orden: lo más importante va primero, y lo que no alcances pasa a después de clase.",'<div class="acts"><button class="pill" data-act="capup">+1 h por día</button></div>']);
+    if(nm.warn&&nm.alert&&diff(TODAY,nm.date)<=3) out.push(["signal","📌",nm.warn]);
+  }
+  if(!S.group) out.push(["signal","👥","¿Cuál es tu grupo de presentación? Con ese dato la guía programa tu preparación.",'<div class="acts"><button class="pill" data-act="settings">Elegir grupo</button></div>']);
+  return out.slice(0,2).map(n=>'<div class="notice '+n[0]+'"><span class="ic">'+n[1]+'</span><div>'+n[2]+(n[3]||"")+'</div></div>').join("");
+}
+
+function focusHTML(t,pos){
+  const T=TYPES[t.type],m=MODS.find(x=>x.id===t.mod);
+  const ahead=!pos;
+  const facts=[];
+  if(t.h)facts.push('<span class="fact">⏱ '+hrs(t.h)+'</span>');
+  if(t.ref&&t.type!=="grupo")facts.push('<span class="fact">📚 '+esc(t.ref)+'</span>');
+  if(t.type!=="clase"&&t.type!=="custom")facts.push('<span class="fact">Listo antes del '+fmt(t.deadline)+'</span>');
+  if(P.late[t.id])facts.push('<span class="fact late">Atrasado</span>');
+  return '<article class="focus" style="--tcol:'+T.col+'">'+
+    '<div class="frow"><span class="kind">'+T.icon+' '+T.name+'</span><span>'+(ahead?'Para adelantar':'Paso '+pos.pos+' de '+pos.total+' hoy')+'</span></div>'+
+    '<h2>'+esc(t.title)+'</h2><div class="facts">'+facts.join("")+'</div>'+
+    '<p class="why"><b>Para qué:</b> '+T.why+(t.type==="lectura"||t.type==="caso"?' Módulo '+m.id+', '+m.title+'.':'')+'</p>'+
+    (t.how.length?'<ol class="how">'+t.how.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ol>':"")+
+    (t.note?'<div class="guide"><b>Preguntas guía.</b> '+esc(t.note)+'</div>':"")+
+    (t.id==="m3-sgu7"?'<div class="guide"><b>Ojo.</b> '+esc(MODS[2].warn)+'</div>':"")+
+    '<button class="cta'+(ahead?" blue":"")+'" data-act="done" data-id="'+t.id+'">✓ Terminé este paso</button>'+
+    (!ahead&&pos.total>1?'<button class="ghost" data-act="later" data-id="'+t.id+'">Hacerlo más tarde hoy</button>':"")+
+  '</article>';
+}
+
+function rowHTML(t,showDay){
+  const d=!!S.done[t.id],T=TYPES[t.type];
+  return '<div class="rowt'+(d?" done":"")+'"><button class="chk" data-act="done" data-id="'+t.id+'" aria-label="Marcar como hecho">'+(d?"✓":"")+'</button>'+
+   '<div class="grow"><div class="tt">'+esc(t.title)+'</div><div class="mm">'+T.icon+' '+T.name+(t.h?', '+hrs(t.h):'')+(showDay?', '+when(P.plan[t.id]):'')+(P.late[t.id]?', atrasado':'')+'</div></div></div>';
+}
+
+function viewRoute(){
   const nm=nextMod();
-  let html='<div class="sub" style="margin:4px 0 12px">Toca un módulo para ver sesiones, tareas y notas. Para marcar los módulos 1 y 2 de una vez, usa “Marcar módulo completo”.</div><div class="map">';
+  let html='<div class="sec"><h3>Toda la ruta</h3><span>toca un módulo para ver sus pasos</span></div>';
   MODS.forEach(m=>{
-    const tl=modTasks(m.id),P=prog(tl);
-    const state=P.pct===100?"done":(nm&&nm.id===m.id?"current":"");
-    const open=S.open[m.id]!==undefined?S.open[m.id]:(nm&&nm.id===m.id);
-    const dl=diff(TODAY,m.date);
-    const ph={antes:tl.filter(t=>!["clase","post"].includes(t.type)),clase:tl.filter(t=>t.type==="clase"),post:tl.filter(t=>t.type==="post")};
-    html+='<div class="mod '+state+(open?" open":"")+'" data-mod="'+m.id+'"><div class="node">'+(state==="done"?"✓":m.id)+'</div><div class="card">'+
-      '<div class="mhead" data-toggle="'+m.id+'"><div class="grow"><div class="ttl">Módulo '+m.id+' · '+m.title+'</div>'+
-      '<div class="sub">'+fmt(m.date)+' · '+m.when+' · sala '+m.room+' · '+(dl>=0?rel(m.date):"pasado")+(state==="current"?' · <b style="color:var(--accent)">ESTÁS AQUÍ</b>':"")+'</div>'+
-      '<div class="row" style="margin-top:6px"><div class="bar grow'+(P.pct===100?" ok":"")+'"><i style="width:'+P.pct+'%"></i></div><span class="hrs">'+P.pct+'%</span></div></div><span class="chev">▶</span></div>'+
-      '<div class="mbody">'+(m.warn?'<div class="alert warn">'+m.warn+'</div>':"")+
-      '<h3>Sesiones</h3><table><tr><th>N°</th><th>Horario</th><th>Tema</th><th>Lectura</th></tr>'+
-      m.sessions.map(s=>'<tr><td>'+s[0]+'</td><td>'+s[1]+'</td><td>'+s[2]+'</td><td>'+s[3]+'</td></tr>').join("")+'</table>'+
-      '<h3>1 · Antes de la clase</h3>'+ph.antes.map(t=>taskRow(t)).join("")+
-      '<h3>2 · Día de clase</h3>'+ph.clase.map(t=>taskRow(t)).join("")+
-      '<h3>3 · Después</h3>'+ph.post.map(t=>taskRow(t)).join("")+
-      '<div class="row" style="margin-top:10px"><button class="btn primary" data-all="'+m.id+'">Marcar módulo completo</button><button class="btn" data-none="'+m.id+'">Desmarcar todo</button></div>'+
-      '<h3>Mis notas y dudas</h3><textarea data-note="'+m.id+'" placeholder="Dudas para el profesor, ideas clave…">'+esc(S.notes[m.id]||"")+'</textarea>'+
-      extraBlock(m,P.pct)+'</div></div></div>';
+    const p=modPct(m.id),st=p===100?"done":(nm&&nm.id===m.id?"cur":"");
+    const open=OPEN===null?(nm&&nm.id===m.id):OPEN===m.id;
+    const l=modTasks(m.id),nd=l.filter(t=>S.done[t.id]).length;
+    html+='<section class="mod '+st+(open?" open":"")+'" id="mod'+m.id+'"><button class="mh" data-act="open" data-mod="'+m.id+'" aria-expanded="'+open+'"><span class="num">'+(p===100?"✓":m.id)+'</span>'+
+      '<div style="flex:1;min-width:0"><div class="t">'+m.title+'</div><div class="s">'+fmt(m.date)+', '+m.when.split(" ")[1]+', sala '+m.room+' · '+nd+' de '+l.length+' pasos</div><div class="bar"><i style="width:'+p+'%"></i></div></div><span class="chev">›</span></button>';
+    if(open) html+='<div class="mb">'+modBody(m,p)+'</div>';
+    html+='</section>';
   });
-  html+='</div>';
-  document.getElementById("tab-mapa").innerHTML=html;
-}
-function extraBlock(m,pct){
-  const unlocked=pct===100||S.unlock[m.id];
-  let s='<div class="extra"><h3>🚀 Ir más allá (optativo) · Módulo '+m.id+'</h3>';
-  if(!unlocked)s+='<div class="sub">🔒 Se desbloquea cuando el módulo obligatorio esté al 100% ('+pct+'% ahora). <button class="btn small" data-unlock="'+m.id+'">ver igual</button></div>';
-  else s+=m.beyond.map((b,i)=>{const id="x"+m.id+"-"+i,d=!!S.extra[id];return'<div class="task'+(d?" done":"")+'"><input type="checkbox" data-x="'+id+'"'+(d?" checked":"")+'><div><div class="t">'+esc(b[0])+'</div><div class="note">'+esc(b[1])+'</div></div></div>';}).join("")+
-    (pct<100?'<div class="alert warn">Recuerda: primero completa el 100% obligatorio de este módulo.</div>':"");
-  return s+'</div>';
+  html+='<details class="more" style="margin-top:20px"><summary>Bibliografía del curso</summary>'+BOOKS.map(b=>'<p style="margin:8px 0;font-size:14px"><b>'+b[0]+'</b>: '+b[1]+'</p>').join("")+'</details>';
+  return html;
 }
 
-/* ============ CALENDARIO ============ */
-function renderCal(){
-  const all=allTasks().sort((a,b)=>a.plan.localeCompare(b.plan));
-  const byDay={};all.forEach(t=>(byDay[t.plan]=byDay[t.plan]||[]).push(t));
-  let html='<div class="card"><div class="row"><h2 class="grow" style="margin:0">Plan día a día</h2><label class="sub"><input type="checkbox" id="hideDone"'+(S.hideDone?" checked":"")+'> ocultar hechas</label></div>'+
-    '<div class="sub">Horas estimadas por día. Los días con clase aparecen destacados.</div>';
-  let lastWeek="";
-  Object.keys(byDay).sort().forEach(d=>{
-    let list=byDay[d];if(S.hideDone)list=list.filter(t=>!S.done[t.id]);if(!list.length)return;
-    const dt=toDate(d),mon=new Date(dt);mon.setDate(dt.getDate()-((dt.getDay()+6)%7));const wk=ymd(mon);
-    if(wk!==lastWeek){html+='<div class="week">Semana del '+fmt(wk)+'</div>';lastWeek=wk;}
-    const isClass=MODS.find(m=>m.date===d);
-    const hrs=list.filter(t=>t.type!=="clase").reduce((a,t)=>a+t.h,0);
-    html+='<div class="day'+(d===TODAY?" istoday":"")+(isClass?" class":"")+'"><div class="d">'+fmt(d)+(d===TODAY?"<br>HOY":"")+'</div><div class="grow">'+
-      (isClass?'<div class="ci"><b>🎓 Módulo '+isClass.id+' · '+isClass.when+' · '+isClass.room+'</b></div>':"")+
-      list.filter(t=>t.type!=="clase").map(t=>'<div class="ci'+(S.done[t.id]?" done":"")+'">'+(t.prio?'<span class="tag '+t.prio+'">'+t.prio+'</span> ':"")+esc(t.title)+' <span class="hrs">'+h(t.h)+'</span></div>').join("")+
-      '</div><div class="hrs">'+(hrs?h(hrs):"")+'</div></div>';
+function modBody(m,p){
+  const l=modTasks(m.id),dl=prepDeadline(m);
+  const phases=[["Antes de la clase","listo antes del "+fmt(dl),l.filter(t=>!["clase","post","custom"].includes(t.type))],
+    ["En clase",fmt(m.date)+", "+m.when.split(" ")[1],l.filter(t=>t.type==="clase")],
+    ["Después de clase","hasta el "+fmt(addDays(m.date,3)),l.filter(t=>t.type==="post")]];
+  const cus=l.filter(t=>t.type==="custom"); if(cus.length)phases.push(["Fechas propias","",cus]);
+  let n=0;
+  let h=(m.warn?'<div class="notice signal"><span class="ic">📌</span><div>'+m.warn+'</div></div>':"")+
+    '<div class="chips"><span class="fact">Presenta el caso: '+m.presenter+(+S.group===m.group&&m.group?' (tú)':'')+'</span></div>';
+  phases.forEach(ph=>{
+    if(!ph[2].length)return;
+    h+='<div class="phase">'+ph[0]+'<span>'+ph[1]+'</span></div><div class="steps">'+ph[2].map(t=>{
+      n++;const d=!!S.done[t.id],T=TYPES[t.type],e=EXP[t.id];
+      return '<div class="step'+(d?" done":"")+(e?" exp":"")+'"><button class="chk" data-act="done" data-id="'+t.id+'" aria-label="Marcar paso '+n+'">'+(d?"✓":n)+'</button>'+
+        '<button class="sb" data-act="exp" data-id="'+t.id+'" aria-expanded="'+(!!e)+'"><div class="tt">'+esc(t.title)+'</div><div class="mm">'+T.icon+' '+T.name+(t.h?', '+hrs(t.h):'')+(!d&&P.plan[t.id]&&t.type!=="clase"?', toca '+when(P.plan[t.id]):'')+(P.late[t.id]&&!d?', atrasado':'')+'</div>'+
+        '<div class="sx">'+T.why+(t.how.length?'<ol>'+t.how.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ol>':'')+(t.note?'<div class="guide"><b>Preguntas guía.</b> '+esc(t.note)+'</div>':'')+'</div></button>'+
+        (t.type==="custom"?'<button class="plain red" data-act="delc" data-id="'+t.id+'">Quitar</button>':'')+'</div>';
+    }).join("")+'</div>';
   });
-  html+='</div>';
-  document.getElementById("tab-cal").innerHTML=html;
+  h+='<div class="navrow" style="margin-top:12px">'+(p<100?'<button class="plain" data-act="all" data-mod="'+m.id+'">Marcar todo el módulo como hecho</button>':'<button class="plain" data-act="none" data-mod="'+m.id+'">Desmarcar el módulo</button>')+'</div>';
+  h+='<details class="more"><summary>Horario de las sesiones</summary><table>'+m.sessions.map(s=>'<tr><td>'+s[0]+'</td><td>'+s[1]+'<br><span style="color:var(--faint)">'+s[2]+'</span></td></tr>').join("")+'</table></details>';
+  h+='<details class="more"><summary>Mis notas y dudas</summary><textarea data-note="'+m.id+'" placeholder="Dudas para el profesor, ideas clave…">'+esc(S.notes[m.id]||"")+'</textarea></details>';
+  h+=extraHTML(m,p);
+  return h;
 }
 
-/* ============ MÁS ALLÁ ============ */
-function renderMas(){
-  let html='<div class="alert info">Material optativo para profundizar. Regla: <b>primero el 100% obligatorio</b> del módulo; por eso cada bloque se desbloquea al completarlo.</div>';
-  const nX=Object.values(S.extra).filter(Boolean).length;
-  html+='<div class="card"><b>Extras completados: '+nX+'</b> <span class="sub">(no cuentan para el progreso obligatorio)</span></div>';
-  MODS.forEach(m=>{html+='<div class="card">'+extraBlock(m,prog(modTasks(m.id)).pct)+'</div>';});
-  html+='<div class="card"><h2>Bibliografía del curso</h2>'+Object.entries(BOOKS).map(([k,v])=>'<div class="ci"><b>['+k+']</b> '+v+'</div>').join("")+
-    '<div class="sub" style="margin-top:8px">Casos HBS obligatorios: 723-023 Singapur · HKU804 Tailandia · 706-002 EE.UU. · 715-019 Argentina I · 714-036 Argentina II · 718-022 Hank y Nancy.</div></div>';
-  document.getElementById("tab-mas").innerHTML=html;
+function extraHTML(m,p){
+  let h='<div class="extra"><h4>Ir más allá</h4>';
+  if(p<100){const left=modTasks(m.id).filter(t=>!S.done[t.id]).length;
+    return h+'<div class="lock">🔒 Material optativo para profundizar. Se abre cuando completes el módulo: te '+(left===1?'falta 1 paso':'faltan '+left+' pasos')+'.</div></div>';}
+  h+='<div class="lock" style="margin-bottom:6px">Optativo. Elige lo que te interese.</div>';
+  return h+m.beyond.map((b,i)=>{const id="x"+m.id+"-"+i,d=!!S.extra[id];
+    return '<div class="xrow'+(d?" done":"")+'"><button class="chk" data-act="xdone" data-id="'+id+'" aria-label="Marcar">'+(d?"✓":"")+'</button><div><div class="tt">'+esc(b[0])+'</div><div class="mm">'+esc(b[1])+'</div></div></div>';}).join("")+'</div>';
 }
 
-/* ============ AJUSTES ============ */
-function renderAjustes(){
-  const html='<div class="card"><h2>Mi grupo de presentación</h2><select id="grp"><option value="0">— elegir —</option>'+
-    [1,2,3,4,5].map(g=>{const m=MODS.find(x=>x.group===g);return'<option value="'+g+'"'+(+S.group===g?" selected":"")+'>Grupo '+g+' · Módulo '+m.id+' ('+fmt(m.date)+')</option>';}).join("")+
-    '</select><div class="sub" style="margin-top:6px">Agrega 5 tareas de preparación antes de la fecha de tu presentación.</div></div>'+
-    '<div class="card"><h2>Agregar tarea o fecha propia</h2><div class="sub">Pruebas, entregas o evaluaciones que no estén en la planificación.</div>'+
-    '<div class="grid2" style="margin-top:8px"><input type="text" id="cT" placeholder="Ej: Prueba 1"><input type="date" id="cD" value="'+TODAY+'">'+
-    '<input type="number" id="cH" step="0.5" min="0" value="2" placeholder="Horas"><select id="cM">'+MODS.map(m=>'<option value="'+m.id+'">Módulo '+m.id+'</option>').join("")+'</select></div>'+
-    '<button class="btn primary" id="cAdd" style="margin-top:8px">Agregar</button></div>'+
-    '<div class="card"><h2>Respaldo</h2><div class="row"><button class="btn" id="exp">Exportar progreso</button><label class="btn">Importar<input type="file" id="imp" accept=".json" class="hidden"></label><button class="btn" id="rst">Reiniciar todo</button></div>'+
-    '<div class="sub" style="margin-top:6px">El progreso vive en este navegador. Exporta para pasarlo del computador al celular.</div></div>';
-  document.getElementById("tab-ajustes").innerHTML=html;
+function viewWeek(){
+  const t=toDate(TODAY);const mon=new Date(t);mon.setDate(t.getDate()-((t.getDay()+6)%7)+WEEK*7);
+  const days=[...Array(7)].map((_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return ymd(d);});
+  let html='<div class="wkhead"><button class="wkbtn" data-act="wk" data-d="-1" aria-label="Semana anterior">‹</button><h3>'+(WEEK===0?'Esta semana':WEEK===1?'Próxima semana':'Semana del '+fmt(days[0],{day:"numeric",month:"short"}))+'</h3><button class="wkbtn" data-act="wk" data-d="1" aria-label="Semana siguiente">›</button></div>';
+  html+='<p class="why" style="margin:0 0 6px;font-size:14px">El plan se recalcula solo cada vez que marcas un paso o cambias tus horas.</p>';
+  days.forEach(d=>{
+    const items=P.T.filter(x=>(!S.done[x.id]&&P.plan[x.id]===d)||(S.done[x.id]===d)).filter(x=>x.type!=="clase").sort((a,b)=>a.ord-b.ord);
+    const cls=MODS.find(m=>m.date===d);
+    if(d<TODAY&&!items.length&&!cls)return;
+    const used=items.filter(x=>!S.done[x.id]).reduce((a,x)=>a+x.h,0),cap=capOf(d);
+    html+='<div class="day'+(d===TODAY?" today":"")+(d<TODAY?" past":"")+'"><div class="dh"><b>'+fmt(d,{weekday:"long",day:"numeric"})+(d===TODAY?' (hoy)':'')+'</b><span'+(used>cap+0.01?' style="color:var(--danger);font-weight:700"':'')+'>'+(d>=TODAY?hrs(used)+' de '+hrs(cap):'')+'</span></div>'+
+      (cls?'<span class="cls">🎓 Clase módulo '+cls.id+', '+cls.start+', '+cls.room+'</span>':'')+
+      (items.length?items.map(x=>'<div class="it'+(S.done[x.id]?" done":"")+'"><span>'+TYPES[x.type].icon+'</span><span>'+esc(x.title)+'</span><span class="h">'+hrs(x.h)+'</span></div>').join(""):(cls?'':'<div class="empty">'+(d<TODAY?'—':'Libre')+'</div>'))+'</div>';
+  });
+  return html;
 }
 
-/* ============ EVENTOS ============ */
-function renderAll(){renderHoy();renderMapa();renderCal();renderMas();renderAjustes();}
-document.addEventListener("change",e=>{
-  const t=e.target;
-  if(t.dataset.id){S.done[t.dataset.id]=t.checked;save();renderAll();}
-  else if(t.dataset.x){S.extra[t.dataset.x]=t.checked;save();renderAll();}
-  else if(t.id==="hideDone"){S.hideDone=t.checked;save();renderCal();}
-  else if(t.id==="grp"){S.group=+t.value;save();renderAll();}
-  else if(t.id==="imp"&&t.files[0]){const r=new FileReader();r.onload=()=>{try{S=Object.assign(S,JSON.parse(r.result));save();renderAll();alert("Progreso importado.");}catch(err){alert("Archivo no válido.");}};r.readAsText(t.files[0]);}
+/* =========================================================
+   HOJAS: configuración inicial, ajustes, celebración
+   ========================================================= */
+let OB={step:0,mod:null};
+function openSheet(html){document.getElementById("sheet").innerHTML=html;document.getElementById("veil").classList.add("show");}
+function closeSheet(){document.getElementById("veil").classList.remove("show");}
+
+function onboardHTML(){
+  const s=OB.step,dots='<div class="dots">'+[0,1,2].map(i=>'<i class="'+(i<=s?"on":"")+'"></i>').join("")+'</div>';
+  if(OB.mod===null){const nm=nextMod();OB.mod=nm?nm.id:6;}
+  if(s===0) return dots+'<h2>¿En qué módulo vas?</h2><p class="lead">Marco como hechos los módulos anteriores y la guía parte desde ahí.</p>'+
+    MODS.map(m=>'<button class="opt'+(OB.mod===m.id?" sel":"")+'" data-act="obmod" data-mod="'+m.id+'"><span class="n">'+m.id+'</span><span><span class="tt">'+m.title+'</span><br><span class="mm">Clase el '+fmt(m.date)+'</span></span></button>').join("")+
+    '<div class="navrow"><button class="cta blue" data-act="obnext">Siguiente</button></div>';
+  if(s===1) return dots+'<h2>¿Cuánto tiempo tienes para estudiar?</h2><p class="lead">Con esto reparto las lecturas en tus días. Puedes cambiarlo cuando quieras.</p>'+
+    stepperHTML("wd","De lunes a viernes","horas por día")+stepperHTML("we","Sábado y domingo","horas por día")+
+    '<div class="navrow"><button class="ghost" data-act="obback">Atrás</button><button class="cta blue" data-act="obnext">Siguiente</button></div>';
+  return dots+'<h2>¿Qué grupo eres?</h2><p class="lead">Cada grupo presenta un caso. La guía programará tu preparación con dos semanas de anticipación.</p>'+
+    '<div class="grid5">'+[1,2,3,4,5].map(g=>{const m=MODS.find(x=>x.group===g);return '<button class="opt'+(+S.group===g?" sel":"")+'" data-act="grp" data-g="'+g+'"><span class="n">'+g+'</span><span class="mm">'+fmt(m.date,{day:"numeric",month:"short"})+'</span></button>';}).join("")+'</div>'+
+    '<button class="opt'+(!S.group?" sel":"")+'" data-act="grp" data-g="0" style="justify-content:center">Todavía no lo sé</button>'+
+    '<div class="navrow"><button class="ghost" data-act="obback">Atrás</button><button class="cta" data-act="obfinish">Empezar</button></div>';
+}
+function stepperHTML(k,lbl,sub){return '<div class="stepper"><div class="lbl"><b>'+lbl+'</b><span>'+sub+'</span></div><div class="ctl"><button data-act="cap" data-k="'+k+'" data-d="-0.5" aria-label="Menos">−</button><output>'+hrs(S.cap[k])+'</output><button data-act="cap" data-k="'+k+'" data-d="0.5" aria-label="Más">+</button></div></div>';}
+
+function settingsHTML(){
+  return '<h2>Ajustes</h2>'+
+   '<div class="sgroup"><h3>Tiempo de estudio</h3>'+stepperHTML("wd","De lunes a viernes","horas por día")+stepperHTML("we","Sábado y domingo","horas por día")+'</div>'+
+   '<div class="sgroup"><h3>Mi grupo de presentación</h3><div class="grid5">'+[1,2,3,4,5].map(g=>'<button class="opt'+(+S.group===g?" sel":"")+'" data-act="grp" data-g="'+g+'"><span class="n">'+g+'</span><span class="mm">Mód. '+MODS.find(x=>x.group===g).id+'</span></button>').join("")+'</div>'+
+   '<button class="opt'+(!S.group?" sel":"")+'" data-act="grp" data-g="0" style="justify-content:center">Todavía no lo sé</button></div>'+
+   '<div class="sgroup"><h3>Agregar una prueba o fecha</h3><p class="why" style="font-size:14px;margin:0">Para evaluaciones que no estén en la planificación.</p>'+
+   '<input class="field" id="cT" placeholder="Ej.: Prueba 1"><div class="two"><input class="field" type="date" id="cD" value="'+TODAY+'"><select class="field" id="cM">'+MODS.map(m=>'<option value="'+m.id+'">Módulo '+m.id+'</option>').join("")+'</select></div>'+
+   '<button class="plain" data-act="addc">Agregar fecha</button></div>'+
+   '<div class="sgroup"><h3>Respaldo</h3><p class="why" style="font-size:14px;margin:0 0 6px">Tu avance se guarda en este navegador. Descárgalo para pasarlo del computador al celular.</p>'+
+   '<button class="plain" data-act="exp">Descargar avance</button><label class="plain" style="cursor:pointer">Cargar avance<input type="file" id="imp" accept=".json" class="hidden"></label></div>'+
+   '<div class="sgroup"><button class="plain" data-act="theme">Cambiar tema claro u oscuro</button><button class="plain" data-act="reob">Repetir configuración inicial</button><button class="plain red" data-act="reset">Borrar todo mi avance</button></div>'+
+   '<div class="navrow"><button class="cta blue" data-act="close">Listo</button></div>';
+}
+
+function celebrateHTML(m){
+  return '<div class="celebrate"><div class="boom">🎉</div><h2>¡Módulo '+m.id+' completo!</h2><p class="lead">'+m.title+'. Se desbloqueó el material optativo para ir más allá.</p>'+
+   '<button class="cta" data-act="seeextra" data-mod="'+m.id+'">Ver material optativo</button><button class="ghost" data-act="close">Seguir con la ruta</button></div>';
+}
+
+/* =========================================================
+   ACCIONES
+   ========================================================= */
+let UNDO=null,toastT=null;
+function toast(msg,undo){UNDO=undo;document.getElementById("toastMsg").textContent=msg;const t=document.getElementById("toast");t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),4500);}
+function toggleDone(id){
+  buildPlan();
+  const t=P.T.find(x=>x.id===id); if(!t)return;
+  const before=modPct(t.mod), was=S.done[id];
+  if(was) delete S.done[id]; else S.done[id]=TODAY;
+  save(); render();
+  if(!was){
+    toast("Paso completado",()=>{delete S.done[id];save();render();});
+    if(before<100&&modPct(t.mod)===100) openSheet(celebrateHTML(MODS.find(m=>m.id===t.mod)));
+  }
+}
+
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-act]"); if(!b)return;
+  const a=b.dataset.act,id=b.dataset.id,mod=+b.dataset.mod;
+  switch(a){
+    case"tab": TAB=b.dataset.tab; render(); scrollTo(0,0); break;
+    case"done": toggleDone(id); break;
+    case"later": S.later[id]=TODAY; save(); render(); break;
+    case"xdone": S.extra[id]=!S.extra[id]; save(); render(); break;
+    case"goto": TAB="route"; OPEN=mod; render(); setTimeout(()=>{const el=document.getElementById("mod"+mod);el&&el.scrollIntoView({behavior:"smooth",block:"start"});},30); break;
+    case"open": OPEN=(OPEN===mod||(OPEN===null&&nextMod()&&nextMod().id===mod))?-1:mod; render(); break;
+    case"exp": EXP[id]=!EXP[id]; render(); break;
+    case"all": {const ids=modTasks(mod).filter(t=>!S.done[t.id]).map(t=>t.id); ids.forEach(i=>S.done[i]=TODAY); save(); render(); toast("Módulo "+mod+" marcado como hecho",()=>{ids.forEach(i=>delete S.done[i]);save();render();}); break;}
+    case"none": modTasks(mod).forEach(t=>delete S.done[t.id]); save(); render(); break;
+    case"wk": WEEK+=+b.dataset.d; render(); break;
+    case"capup": S.cap.wd+=1; S.cap.we+=1; save(); render(); toast("Ahora: "+hrs(S.cap.wd)+" entre semana y "+hrs(S.cap.we)+" el fin de semana",null); break;
+    case"cap": {const k=b.dataset.k; S.cap[k]=Math.max(0.5,Math.min(12,S.cap[k]+(+b.dataset.d))); save(); b.parentNode.querySelector("output").textContent=hrs(S.cap[k]); render(); break;}
+    case"grp": S.group=+b.dataset.g; save(); render(); document.getElementById("sheet").innerHTML=S.onboarded?settingsHTML():onboardHTML(); break;
+    case"settings": openSheet(settingsHTML()); break;
+    case"close": closeSheet(); break;
+    case"undo": if(UNDO){UNDO();UNDO=null;} document.getElementById("toast").classList.remove("show"); break;
+    case"obmod": OB.mod=mod; document.getElementById("sheet").innerHTML=onboardHTML(); break;
+    case"obnext": OB.step++; document.getElementById("sheet").innerHTML=onboardHTML(); break;
+    case"obback": OB.step--; document.getElementById("sheet").innerHTML=onboardHTML(); break;
+    case"obfinish": {buildPlan(); P.T.filter(t=>t.mod<OB.mod).forEach(t=>{if(!S.done[t.id])S.done[t.id]="previo";}); S.onboarded=true; save(); closeSheet(); TAB="now"; render(); break;}
+    case"reob": S.onboarded=false; OB={step:0,mod:null}; save(); openSheet(onboardHTML()); break;
+    case"seeextra": closeSheet(); TAB="route"; OPEN=mod; render(); setTimeout(()=>{const el=document.querySelector("#mod"+mod+" .extra");el&&el.scrollIntoView({behavior:"smooth",block:"center"});},30); break;
+    case"addc": {const ti=document.getElementById("cT").value.trim(); if(!ti){document.getElementById("cT").focus();return;}
+      S.custom.push({id:"c"+Date.now(),title:ti,date:document.getElementById("cD").value||TODAY,h:0,mod:+document.getElementById("cM").value}); save(); render(); document.getElementById("cT").value=""; toast("Fecha agregada a la ruta",null); break;}
+    case"delc": S.custom=S.custom.filter(c=>c.id!==id); save(); render(); break;
+    case"exp": {const blob=new Blob([JSON.stringify(S,null,1)],{type:"application/json"});const l=document.createElement("a");l.href=URL.createObjectURL(blob);l.download="avance-macro-"+TODAY+".json";l.click();break;}
+    case"theme": {const r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;r.dataset.theme=dark?"light":"dark";try{localStorage.setItem(KEY+"-theme",r.dataset.theme)}catch(err){}break;}
+    case"reset": if(confirm("Esto borra todo tu avance en este navegador. ¿Continuar?")){S=fresh();save();OB={step:0,mod:null};openSheet(onboardHTML());render();} break;
+  }
 });
 document.addEventListener("input",e=>{if(e.target.dataset.note){S.notes[e.target.dataset.note]=e.target.value;save();}});
-document.addEventListener("click",e=>{
-  const t=e.target.closest("[data-toggle],[data-all],[data-none],[data-unlock],[data-del],#cAdd,#exp,#rst,#themeBtn,nav.tabs button");
-  if(!t)return;
-  if(t.dataset.tab){document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("on",b===t));document.querySelectorAll("section").forEach(s=>s.classList.toggle("hidden",s.id!=="tab-"+t.dataset.tab));window.scrollTo(0,0);return;}
-  if(t.dataset.toggle){const id=t.dataset.toggle,el=t.closest(".mod");const o=!el.classList.contains("open");el.classList.toggle("open",o);S.open[id]=o;save();return;}
-  if(t.dataset.all){modTasks(+t.dataset.all).forEach(x=>S.done[x.id]=true);save();renderAll();return;}
-  if(t.dataset.none){modTasks(+t.dataset.none).forEach(x=>S.done[x.id]=false);save();renderAll();return;}
-  if(t.dataset.unlock){S.unlock[t.dataset.unlock]=true;save();renderAll();return;}
-  if(t.dataset.del){S.custom=S.custom.filter(c=>c.id!==t.dataset.del);save();renderAll();return;}
-  if(t.id==="cAdd"){const ti=document.getElementById("cT").value.trim();if(!ti)return;S.custom.push({id:"c"+Date.now(),title:ti,plan:document.getElementById("cD").value||TODAY,h:+document.getElementById("cH").value||0,mod:+document.getElementById("cM").value});save();renderAll();alert("Tarea agregada.");return;}
-  if(t.id==="exp"){const b=new Blob([JSON.stringify(S,null,1)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="progreso-macro-"+TODAY+".json";a.click();return;}
-  if(t.id==="rst"){if(confirm("¿Borrar todo el progreso de este navegador?")){S={done:{},extra:{},group:0,custom:[],notes:{},open:{},unlock:{},hideDone:false};save();renderAll();}return;}
-  if(t.id==="themeBtn"){const r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;r.dataset.theme=dark?"light":"dark";try{localStorage.setItem(KEY+"-theme",r.dataset.theme);}catch(err){}}
+document.addEventListener("change",e=>{
+  if(e.target.id==="imp"&&e.target.files[0]){const r=new FileReader();r.onload=()=>{try{S=Object.assign(fresh(),JSON.parse(r.result));save();render();closeSheet();toast("Avance cargado",null);}catch(err){alert("Ese archivo no es un respaldo de esta guía.");}};r.readAsText(e.target.files[0]);}
 });
+document.getElementById("veil").addEventListener("click",e=>{if(e.target.id==="veil"&&S.onboarded)closeSheet();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&S.onboarded)closeSheet();});
+
 try{const th=localStorage.getItem(KEY+"-theme");if(th)document.documentElement.dataset.theme=th;}catch(e){}
-renderAll();
+render();
+if(!S.onboarded) openSheet(onboardHTML());
+setInterval(()=>{if(TAB==="now"&&!document.getElementById("veil").classList.contains("show"))renderLine(),(document.querySelector(".next .big")&&(document.querySelector(".next .big").textContent=countdown(nextMod()||MODS[5])));},60000);
 </script>
 </body>
 </html>
